@@ -7,7 +7,7 @@
   --spine-ratio: 0.155;
   --cover-ratio: 0.74;
   --cover-art-w: 0.46;      /* width of the drawing box on a cover, as a share of the cover width */
-  --cover-art-scale: 0.9;    /* size of the drawing inside that box */
+  --cover-art-scale: 1;      /* size of the drawing inside that box */
   --open-angle: 64;          /* how far the open book turns toward you, degrees */
   --spine-w: calc(var(--book-h) * var(--spine-ratio));
   --cover-w: calc(var(--book-h) * var(--cover-ratio));
@@ -153,11 +153,11 @@ button { font: inherit; color: inherit; }
 /* the drawing sits bottom left, sized to the description beneath it */
 .ac-canvas {
   display: block; margin-top: auto;
-  width: calc(var(--cover-w) * var(--cover-art-w)); height: calc(var(--cover-w) * var(--cover-art-w) * 1.15);
+  width: calc(var(--cover-w) * var(--cover-art-w)); height: calc(var(--cover-w) * var(--cover-art-w) * 0.95);
 }
 .ac-desc {
-  margin: calc(var(--cover-w) * 0.03) 0 calc(var(--cover-w) * 0.05); max-width: 78%;
-  font-size: calc(var(--cover-w) * 0.042); line-height: 1.35; opacity: 0.8;
+  margin: 0 0 calc(var(--cover-w) * 0.045); max-width: 74%;
+  font-size: calc(var(--cover-w) * 0.033); line-height: 1.35; opacity: 0.8;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
 .ac-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: calc(var(--cover-w) * 0.042); }

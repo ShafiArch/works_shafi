@@ -248,13 +248,38 @@
     this.w = w; this.h = h; this.dpr = dpr;
     this.canvas.width = Math.round(w * dpr); this.canvas.height = Math.round(h * dpr);
   };
-  Sketch.prototype.draw = function (now) {
-    var t = (now - this.t0) / 1000 + this.phase, v = Object.assign({}, DEF, this.gen.view);
+  /* Items for time t, projected in drawing units (origin at 0,0, before zoom). */
+  Sketch.prototype.frameItems = function (t) {
+    var v = Object.assign({}, DEF, this.gen.view);
     var res = this.gen.step(t, this.state), items = res, extra = 0;
     if (res && !Array.isArray(res)) { items = res.items; extra = res.az || 0; }
-    var w = this.w, h = this.h, ctx = this.ctx, zoom = Math.min(w, h) * v.zoom * this.size;
-    var az = v.az + v.spin * t + extra, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el), cx = w / 2, cy = h * (0.5 + (v.yc - 0.5) * this.size);
-    function pr(p) { var x1 = p[0] * ca - p[1] * sa, y1 = p[0] * sa + p[1] * ca; return [cx + x1 * zoom, cy - (p[2] * ce + y1 * se) * zoom]; }
+    var az = v.az + v.spin * t + extra, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el);
+    return { items: items, v: v, pr: function (p) { var x1 = p[0] * ca - p[1] * sa, y1 = p[0] * sa + p[1] * ca; return [x1, -(p[2] * ce + y1 * se)]; } };
+  };
+  /* Sample the animation once to find how far the drawing reaches left and down,
+     so it can sit flush in the bottom left corner without jumping. */
+  Sketch.prototype.measure = function () {
+    var minX = Infinity, maxY = -Infinity, maxX = -Infinity, minY = Infinity;
+    for (var k = 0; k < 24; k++) {
+      var f = this.frameItems(this.phase + k * 1.3);
+      f.items.forEach(function (it) {
+        (it.kind === "dot" ? [it.p] : it.pts || []).forEach(function (p) {
+          var q = f.pr(p);
+          if (q[0] < minX) minX = q[0]; if (q[0] > maxX) maxX = q[0];
+          if (q[1] < minY) minY = q[1]; if (q[1] > maxY) maxY = q[1];
+        });
+      });
+    }
+    this.minX = minX; this.maxY = maxY; this.spanX = maxX - minX || 1; this.spanY = maxY - minY || 1;
+  };
+  Sketch.prototype.draw = function (now) {
+    var t = (now - this.t0) / 1000 + this.phase, f = this.frameItems(t), items = f.items, v = f.v;
+    if (this.minX === undefined) this.measure();
+    var w = this.w, h = this.h, ctx = this.ctx, pad = 3;
+    // fit the whole motion inside the box, then anchor it bottom left
+    var zoom = Math.min((w - 2 * pad) / this.spanX, (h - 2 * pad) / this.spanY) * this.size;
+    var ox = pad - this.minX * zoom, oy = h - pad - this.maxY * zoom;
+    function pr(p) { var q = f.pr(p); return [ox + q[0] * zoom, oy + q[1] * zoom]; }
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
