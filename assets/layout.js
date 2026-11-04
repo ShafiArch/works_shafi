@@ -237,6 +237,7 @@
       '<h3 class="l-h3">Layout</h3>' +
       fld("Title position", seg("lh-header", [["left", "Left"], ["center", "Centred"]], l.header || "left")) +
       fld("Facts", seg("lh-facts", [["side", "Beside the introduction"], ["below", "Below it, in columns"]], l.facts || "side")) +
+      fld("Introduction alignment", seg("lh-introAlign", [["left", "Left"], ["center", "Centre"], ["right", "Right"], ["justify", "Justified"]], l.introAlign || "left")) +
       fld("Introduction size", seg("lh-intro", [["xsmall", "Very small"], ["small", "Small"], ["normal", "Medium"], ["large", "Large"], ["xlarge", "Very large"]], l.intro || "normal")) +
       '<h3 class="l-h3">Text</h3>' +
       fld("Title", txt("title", p.title)) + fld("Description", txt("subtitle", p.subtitle)) +
@@ -268,7 +269,7 @@
         (l.ratio && l.ratio !== "original" ? fld("Keep in view", seg("ll-focus", [["center", "Centre"], ["top", "Top"], ["bottom", "Bottom"], ["left", "Left"], ["right", "Right"]], l.focus || "center")) : "") : "") +
       (b.type === "text" ? fld("Heading", seg("ll-text", [["side", "Beside the text"], ["stacked", "Above the text"]], l.text || "side"), "Beside only when the block is wide enough; otherwise above.") +
         fld("Text size", seg("ll-size", [["xsmall", "Very small"], ["small", "Small"], ["normal", "Medium"], ["large", "Large"], ["xlarge", "Very large"]], l.size || "normal"), "Sizes scale down gently on phones.") +
-        fld("Alignment", seg("ll-textAlign", [["left", "Left"], ["center", "Centred"]], l.textAlign || "left")) : "") +
+        fld("Paragraph alignment", seg("ll-textAlign", [["left", "Left"], ["center", "Centre"], ["right", "Right"], ["justify", "Justified"]], l.textAlign || "left"), "Justified lines up both sides. In narrow columns and on phones it falls back to left, to avoid gaps between words.") : "") +
       '<h3 class="l-h3">Content</h3>' + contentFields(b);
   }
   function firstVisible() { var bl = P().blocks || []; for (var i = 0; i < bl.length; i++) if (!bl[i].hidden) return i; return -1; }
@@ -343,7 +344,7 @@
     // header
     $$('input[name^="lh-"]', insp).forEach(function (r) {
       r.onchange = function () {
-        var k = r.name.slice(3), def = { header: "left", facts: "side", intro: "normal" }[k];
+        var k = r.name.slice(3), def = { header: "left", facts: "side", intro: "normal", introAlign: "left" }[k];
         change(function (p) { p.layout = p.layout || {}; if (r.value === def) delete p.layout[k]; else p.layout[k] = r.value; if (!Object.keys(p.layout).length) delete p.layout; });
       };
     });

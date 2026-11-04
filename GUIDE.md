@@ -47,7 +47,7 @@ Images added in the manager live only in that browser tab until you download, so
 
 Open **https://shafiarch.github.io/works_shafi/layout.html** (or press *Layout* beside a project in the site manager). Pick a project at the top; the right side shows the real project page, and the size buttons show it as Desktop, Laptop, Half screen, Tablet landscape and portrait, and Phone landscape and portrait. Click anything in the preview, or in the list on the left, to select it.
 
-* **Header:** title left or centred; facts beside the introduction or below it in columns; introduction Very small, Small, Medium, Large or Very large. Edit the title, description, category, year, introduction and facts.
+* **Header:** title left or centred; facts beside the introduction or below it in columns; introduction Very small, Small, Medium, Large or Very large, aligned left, centre, right or justified. Edit the title, description, category, year, introduction and facts.
 * **Blocks:** drag to reorder, add new blocks after the selected one, duplicate, hide or delete. Edit each block's text, captions and image files.
 * **Layout of a block,** all from fixed choices so a page cannot break:
   * *Width*: Full, Wide, Two thirds, Half, Third (12, 10, 8, 6 or 4 of 12 columns).
@@ -55,7 +55,7 @@ Open **https://shafiarch.github.io/works_shafi/layout.html** (or press *Layout* 
   * *Position in the row*: left, centre or right, for rows narrower than full.
   * *Vertical alignment* within a row, and *Space above*: none, small, normal or large.
   * *Images*: original shape, or cropped to 16:9, 3:2, 4:3, square or portrait, with the part to keep in view. A click on the page still opens the whole image.
-  * *Text*: heading beside or above the text; size Very small, Small, Medium, Large or Very large; left or centred.
+  * *Text*: heading beside or above the text; size Very small, Small, Medium, Large or Very large; paragraphs aligned left, centre, right or justified (justified falls back to left in narrow columns and on phones).
 * **What adapts by itself:** on half screens and tablets, Third becomes Half and anything wider becomes Full; on phones every block is full width and stacked; a heading sits beside its text only when the block is wide enough. These rules are in `assets/site.css`, so content can never override them.
 * **Undo and redo** with the arrows or Ctrl+Z / Ctrl+Shift+Z. *Revert project* goes back to the published version. Changes are kept in this browser until you download.
 * **Download** gives a zip with `projects/<folder>/project.json` for each changed project. Upload the `projects` folder on GitHub (Add file, Upload files) and commit.
@@ -163,7 +163,7 @@ Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--s
 ## 10. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=12`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=13`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 

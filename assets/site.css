@@ -289,8 +289,16 @@ button { font: inherit; color: inherit; }
 .blk-text.size-small .prose { font-size: 15px; line-height: 1.55; }
 .blk-text.size-large .prose { font-size: clamp(19px, 1.7vw, 24px); line-height: 1.5; }
 .blk-text.size-xlarge .prose { font-size: clamp(22px, 2.5vw, 34px); line-height: 1.35; letter-spacing: -0.01em; max-width: 40ch; }
-.blk-text.is-center { text-align: center; justify-items: center; }
-.blk-text.is-center .prose { margin: 0 auto; }
+/* paragraph alignment */
+.blk-text.align-center { text-align: center; justify-items: center; }
+.blk-text.align-center .prose { margin: 0 auto; }
+.blk-text.align-right .prose, .p-lede.align-right .p-intro { text-align: right; margin-left: auto; }
+.blk-text.align-right.is-stacked { justify-items: end; text-align: right; }
+.blk-text.align-justify .prose, .p-lede.align-justify .p-intro { text-align: justify; hyphens: auto; -webkit-hyphens: auto; }
+.p-lede.align-center .p-intro { text-align: center; margin-left: auto; margin-right: auto; }
+/* justified text in a narrow column leaves gaps between words, so it falls back to left */
+@container (max-width: 420px) { .blk-text.align-justify .prose { text-align: left; } }
+@media (max-width: 480px) { .p-lede.align-justify .p-intro { text-align: left; } }
 
 /* project header options */
 .p-head.is-center { text-align: center; }
