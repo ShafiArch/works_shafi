@@ -34,5 +34,5 @@
   --cover-ink: #0b0b0b;
   --cover-accent: #6b6a66;
   --floor-shadow: rgba(0,0,0,.9);
-  --spine-shade: linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,255,255,.06) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.18));
+  --spine-shade: linear-gradient(90deg, rgba(0,0,0,0.28) 0, rgba(255,255,255,0.05) 2%, rgba(255,255,255,0) 4.5%, rgba(255,255,255,0) 96.5%, rgba(0,0,0,0.34) 100%);
 }

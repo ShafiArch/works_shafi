@@ -100,7 +100,7 @@ python tools/images.py cover projects/seattle-library/01.webp --focus 0.6 0.5 --
 
 Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink`, `--ink-2`, `--rule`, `--accent`, the typefaces, and `--tone-*-bg` / `--tone-*-ink` for the four spine tones). All three use Archivo throughout. Included:
 
-* `trace` (the default): the Grasshopper collection look; trace paper, black ink, blueprint blue, and it follows the visitor's dark mode.
+* `trace` (the default): the Grasshopper collection look; trace paper, black ink, burnt orange accent, and it follows the visitor's dark mode.
 * `night`: the bookshelf reference look; black room, grey and charcoal spines.
 * `clay`: warm paper and earth tones.
 
@@ -115,9 +115,9 @@ Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--s
 ## 8. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=2`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=3`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
-* **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the list under the shelf), `nav`, `about`, `footer`.
+* **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 
 ## 9. Writing
 

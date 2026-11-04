@@ -179,17 +179,34 @@
     if (site.showIndex !== false) buildIndex(items);
   }
 
+  /* Work list: a small button under the shelf that opens the full list. */
   function buildIndex(items) {
     var box = document.querySelector("[data-index]");
     if (!box) return;
-    box.innerHTML = '<h2 class="index-title">Index</h2><ol class="index-list">' + items.map(function (it, i) {
-      var ext = it.kind === "link" && it.open === "tab" ? S.linkAttrs(it.href) : "";
-      return '<li><a href="' + esc(it.href) + '"' + ext + ">" +
-        '<span class="ix-n">' + S.pad(i) + "</span>" +
-        '<span class="ix-t">' + esc(it.title) + "</span>" +
-        '<span class="ix-s">' + esc(it.subtitle || "") + "</span>" +
-        '<span class="ix-c">' + esc(it.category || "") + "</span>" +
-        '<span class="ix-y">' + esc(it.year || "") + "</span></a></li>";
-    }).join("") + "</ol>";
+    box.innerHTML =
+      '<button type="button" class="wl-toggle" aria-expanded="false" aria-controls="work-list">' +
+      'Work list <span class="wl-count">' + S.pad(items.length - 1) + '</span><span class="wl-chev" aria-hidden="true"></span></button>' +
+      '<div class="wl-panel" id="work-list" inert><div class="wl-inner"><ol class="wl-list">' + items.map(function (it, i) {
+        var ext = it.kind === "link" && it.open === "tab" ? S.linkAttrs(it.href) : "";
+        return '<li><a href="' + esc(it.href) + '"' + ext + ">" +
+          '<span class="wl-n">' + S.pad(i) + "</span>" +
+          '<span class="wl-t">' + esc(it.title) + "</span>" +
+          '<span class="wl-c">' + esc(it.category || "") + "</span>" +
+          '<span class="wl-y">' + esc(it.year || "") + "</span></a></li>";
+      }).join("") + "</ol></div></div>";
+    var btn = box.querySelector(".wl-toggle"), panel = box.querySelector(".wl-panel");
+    function setOpen(open, scroll) {
+      btn.setAttribute("aria-expanded", String(open));
+      box.classList.toggle("is-open", open);
+      if (open) panel.removeAttribute("inert"); else panel.setAttribute("inert", "");
+      if (open && scroll) setTimeout(function () {
+        var over = box.getBoundingClientRect().bottom - window.innerHeight + 24;
+        if (over > 0) window.scrollBy({ top: over, behavior: "smooth" });
+      }, 480);
+    }
+    btn.addEventListener("click", function () { setOpen(btn.getAttribute("aria-expanded") !== "true", true); });
+    function fromHash() { if (location.hash === "#index") setOpen(true, true); }
+    window.addEventListener("hashchange", fromHash);
+    fromHash();
   }
 })();
