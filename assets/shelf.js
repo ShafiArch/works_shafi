@@ -7,7 +7,7 @@
   S.getJSON("content/site.json").then(function (site) {
     S.renderChrome(site);
     document.title = site.name + (site.tagline ? ", " + site.tagline : "");
-    return S.loadShelf(site).then(function (items) { build(site, items); });
+    return S.loadSite(site).then(function (r) { build(site, r.books, r.works); });
   }).catch(function (err) {
     console.error(err);
     document.querySelector("[data-shelf]").innerHTML =
@@ -47,9 +47,10 @@
       '<span class="ac-tag">' + meta + "</span></span></span>";
   }
 
-  function build(site, items) {
+  function build(site, items, works) {
     var root = document.querySelector("[data-shelf]");
-    if (!items.length) { root.innerHTML = '<p class="load-error">No projects on the shelf yet.</p>'; return; }
+    if (site.showIndex !== false) buildIndex(works);
+    if (!items.length) { root.innerHTML = '<p class="load-error">No books on the shelf yet.</p>'; return; }
 
     root.innerHTML =
       '<h1 class="visually-hidden">' + esc(site.name) + "</h1>" +
@@ -197,7 +198,6 @@
     });
     loop();
 
-    if (site.showIndex !== false) buildIndex(items);
   }
 
   /* Work list: a small button under the shelf that opens the full list. */

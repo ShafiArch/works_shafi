@@ -1,7 +1,8 @@
 /* Drawn book covers: small line animations in the manner of the Grasshopper
    Workflow Collection cards. Black ink, one orange live element, a slow orbit.
    A project picks its drawing with "art" in the shelf part of project.json:
-     lego, flyover, healing, homestead, interior, graph
+     lego, flyover, healing, homestead, interior, graph  (made for these projects)
+     web, repo, tower, plan                              (general, for new entries)
    Add a new drawing by adding an entry to ART below. */
 (function () {
   "use strict";
@@ -225,6 +226,93 @@
     }
   };
 
+
+  /* ---------- general drawings for new entries ---------- */
+
+  /* A website: a browser window whose page scrolls, with a pointer */
+  ART.web = {
+    view: { el: Math.PI / 2, spin: 0, zoom: 0.42, az: 0 },
+    step: function (t) {
+      var out = [], W = 1.2, H = 0.9;
+      out.push(L([[-W, -H, 0], [W, -H, 0], [W, H, 0], [-W, H, 0]], { closed: true, w: 1.3 }));
+      out.push(L([[-W, H - 0.18, 0], [W, H - 0.18, 0]], { a: 0.7 }));
+      [0, 1, 2].forEach(function (k) { out.push(L(circle([-W + 0.12 + k * 0.1, H - 0.09, 0], 0.03, 12), { closed: true, a: 0.6 })); });
+      out.push(L([[-W + 0.45, H - 0.13, 0], [W - 0.15, H - 0.13, 0], [W - 0.15, H - 0.05, 0], [-W + 0.45, H - 0.05, 0]], { closed: true, a: 0.35 }));
+      var top = H - 0.26, bot = -H + 0.06, scroll = frac(t * 0.06) * 2.4;
+      for (var r = 0; r < 8; r++) {                                   // rows of cards moving up
+        var y = top - frac((r * 0.34 + scroll) / 2.72) * 2.72;
+        if (y < bot + 0.24 || y > top) continue;
+        for (var c = 0; c < 3; c++) {
+          var x0 = -W + 0.12 + c * 0.77, x1 = x0 + 0.65;
+          out.push(L([[x0, y, 0], [x1, y, 0], [x1, y - 0.22, 0], [x0, y - 0.22, 0]], { closed: true, a: 0.75 }));
+        }
+      }
+      var px = 0.5 * Math.sin(t * 0.7), py = -0.1 + 0.35 * Math.sin(t * 0.45);  // pointer
+      out.push(L([[px, py, 0], [px, py - 0.18, 0], [px + 0.05, py - 0.13, 0], [px + 0.12, py - 0.12, 0]], { closed: true, c: "accent", w: 1.4 }));
+      return out;
+    }
+  };
+
+  /* A repository: a branch line with commits and a merge, files beside it */
+  ART.repo = {
+    view: { el: Math.PI / 2, spin: 0, zoom: 0.42, az: 0 },
+    step: function (t) {
+      var out = [], x0 = -1.05, x1 = 1.05;
+      out.push(L([[x0, 0, 0], [x1, 0, 0]], { w: 1.3 }));
+      var br = [];
+      for (var k = 0; k <= 30; k++) {
+        var u = k / 30, x = lerp(-0.55, 0.6, u), y = 0.45 * Math.sin(Math.PI * smooth(u));
+        br.push([x, y, 0]);
+      }
+      out.push(L(br, { a: 0.8 }));
+      for (var c = 0; c < 7; c++) out.push(L(circle([lerp(x0 + 0.1, x1 - 0.1, c / 6), 0, 0], 0.045, 14), { closed: true, w: 1.2 }));
+      [0.25, 0.5, 0.75].forEach(function (u) { var p = br[Math.round(u * 30)]; out.push(L(circle(p, 0.04, 14), { closed: true })); });
+      var head = frac(t * 0.12), hx = lerp(x0, x1, head);
+      out.push(D([hx, 0, 0], { c: "accent", r: 3 }));
+      for (var f = 0; f < 5; f++) {                                   // file list
+        var y = -0.35 - f * 0.13, len = 0.6 + 0.35 * ((f * 37) % 10) / 10, hot = Math.floor(t * 0.5) % 5 === f;
+        out.push(L([[-0.95, y, 0], [-0.88, y, 0]], { a: 0.6 }));
+        out.push(L([[-0.8, y, 0], [-0.8 + len, y, 0]], hot ? { c: "accent", w: 1.2 } : { a: 0.55 }));
+      }
+      return out;
+    }
+  };
+
+  /* A building: floor plates rise around a core, the newest live */
+  ART.tower = {
+    view: { el: 0.42, spin: 0.1, zoom: 0.34, yc: 0.86 },
+    step: function (t) {
+      var out = [], n = 9, s = 0.55, shown = 1 + Math.floor(smooth(frac(t / 10) * 1.2) * (n - 1));
+      out.push.apply(out, box([0, 0, 0], [0.32, 0.32, n * 0.17], { a: 0.4 }));
+      for (var i = 0; i < shown; i++) {
+        var tw = i * 0.06, ca = Math.cos(tw), sa = Math.sin(tw), z = i * 0.17, live = i === shown - 1;
+        var pts = [[-s, -s], [s, -s], [s, s], [-s, s]].map(function (p) { return [p[0] * ca - p[1] * sa, p[0] * sa + p[1] * ca, z]; });
+        out.push(L(pts, live ? { closed: true, c: "accent", w: 1.4 } : { closed: true, w: 1 }));
+        if (i) out.push(L([pts[0], [pts[0][0], pts[0][1], z - 0.17]], { a: 0.4 }));
+      }
+      out.push(L([[-1.1, -1.1, 0], [1.1, -1.1, 0], [1.1, 1.1, 0], [-1.1, 1.1, 0]], { closed: true, a: 0.15 }));
+      return out;
+    }
+  };
+
+  /* A site plan: blocks on a grid, a route traced through them */
+  ART.plan = {
+    view: { el: 0.9, spin: 0.05, zoom: 0.42, yc: 0.55 },
+    init: function (s) {
+      var R = rng(11); s.blocks = [];
+      for (var i = -2; i <= 2; i++) for (var j = -2; j <= 2; j++) if (R() > 0.25) s.blocks.push([i * 0.42, j * 0.42, 0.06 + R() * 0.3]);
+    },
+    step: function (t, s) {
+      var out = [];
+      s.blocks.forEach(function (b) { out.push.apply(out, box([b[0], b[1], 0], [0.3, 0.3, b[2]], { a: 0.8 })); });
+      var route = [[-1.05, -0.21], [-0.21, -0.21], [-0.21, 0.63], [0.63, 0.63], [0.63, -0.63], [1.05, -0.63]], pts = [];
+      route.forEach(function (p) { pts.push([p[0], p[1], 0]); });
+      out.push(L(pts, { c: "accent", w: 1.2, dash: [0.05, 0.04], dashOff: -t * 0.08 }));
+      out.push(L([[-1.1, -1.1, 0], [1.1, -1.1, 0], [1.1, 1.1, 0], [-1.1, 1.1, 0]], { closed: true, a: 0.2 }));
+      return out;
+    }
+  };
+
   var DEF = { az: -0.65, el: 0.5, spin: 0.08, zoom: 0.4, yc: 0.55 };
   var sketches = [], raf = null;
 
@@ -312,6 +400,10 @@
 
   window.Covers = {
     has: function (type) { return !!ART[type]; },
+    list: function () { return Object.keys(ART); },
+    unmount: function (canvas) { sketches = sketches.filter(function (s) { return s.canvas !== canvas; }); },
+    /* animate several at once (used by the site manager preview) */
+    activate: function (canvas) { sketches.forEach(function (s) { if (s.canvas === canvas) s.active = true; }); kick(); },
     mount: function (canvas, type, i) {
       var s = new Sketch(canvas, type, i || 0);
       sketches.push(s); s.draw(performance.now());

@@ -176,7 +176,7 @@ button { font: inherit; color: inherit; }
   letter-spacing: var(--title-tracking); font-size: clamp(26px, 3.2vw, 40px); line-height: 1.05;
 }
 .cap-sub { color: var(--ink-2); margin: 8px auto 0; max-width: 46ch; font-size: 15px; }
-.cap-open { display: inline-block; margin-top: 14px; font-size: 14px; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
+.cap-open { display: block; width: max-content; margin: 14px auto 0; font-size: 14px; border-bottom: 1px solid var(--rule); padding-bottom: 2px; }
 .cap-open:hover, .cap-title:hover { color: var(--accent); }
 
 .controls {

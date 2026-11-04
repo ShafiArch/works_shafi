@@ -54,7 +54,7 @@
     var e = Object.assign({}, entry);
     e.shelf = Object.assign({}, entry.shelf || {});
     e.kind = "link";
-    e.id = entry.id || slugify(entry.title);
+    e.id = entryId(entry);
     e.open = entry.open || "tab";
     e.href = e.open === "embed" ? "project.html?e=" + encodeURIComponent(e.id) : entry.url;
     e.cover = e.shelf.cover ? abs(e.shelf.cover, "content/") : "";
@@ -62,12 +62,25 @@
     return Promise.resolve(e);
   }
 
-  function loadShelf(site) {
-    var list = (site.shelf || []).filter(function (e) { return e && !e.hidden; });
+  /* site.json lists every entry in "works" (the work list order). "carousel" is
+     the order of the books on the shelf, by id; an entry left out of it shows in
+     the work list only. Without "carousel", every entry is a book, in works order.
+     (Older files used "shelf" for "works"; it still works.) */
+  function entryId(e) { return e.project || e.id || slugify(e.title); }
+
+  function loadSite(site) {
+    var list = (site.works || site.shelf || []).filter(function (e) { return e && !e.hidden; });
     return Promise.all(list.map(resolveEntry)).then(function (items) {
-      return items.filter(Boolean).map(function (it, i) { it.n = i; return it; });
+      var works = items.filter(Boolean).map(function (it, i) { it.n = i; return it; });
+      var byId = {};
+      works.forEach(function (it) { byId[it.id] = it; });
+      var books = Array.isArray(site.carousel)
+        ? site.carousel.map(function (id) { return byId[id]; }).filter(Boolean)
+        : works.filter(function (it) { return it.book !== false; });
+      return { works: works, books: books };
     });
   }
+  function loadShelf(site) { return loadSite(site).then(function (r) { return r.works; }); }
 
   function esc(s) {
     return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
@@ -149,7 +162,7 @@
   }
 
   window.Site = {
-    getJSON: getJSON, loadShelf: loadShelf, resolveEntry: resolveEntry, projectBase: projectBase,
+    getJSON: getJSON, loadShelf: loadShelf, loadSite: loadSite, entryId: entryId, slugify: slugify, resolveEntry: resolveEntry, projectBase: projectBase,
     abs: abs, esc: esc, md: md, inline: inline, pad: pad, renderChrome: renderChrome,
     typeCover: typeCover, linkAttrs: linkAttrs, isURL: isURL
   };

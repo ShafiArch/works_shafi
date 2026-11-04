@@ -6,7 +6,8 @@ Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no 
 
 | Path | What it is |
 |---|---|
-| `content/site.json` | Name, navigation, the shelf (which books appear and in what order), shelf title, autoplay speed, footer text. |
+| `manage.html` | The site manager: add, edit, order and remove works, edit the top bar and settings, then download the changed files. Not linked from the site. |
+| `content/site.json` | Name, top bar links, `works` (everything, in work list order), `carousel` (the books on the shelf, in shelf order), autoplay speed, footer text. |
 | `projects/<folder>/project.json` | One project: title, subtitle, year, category, cover, facts, introduction and the content blocks. |
 | `projects/<folder>/*.webp` | That project's images (and videos, if any). |
 | `projects/_template/project.json` | A copy-ready example that uses every block type. It is not on the shelf. |
@@ -14,28 +15,50 @@ Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no 
 | `themes/*.css` | One file per theme: colors, typefaces, spine tones. |
 | `assets/site.css` | Layout and motion only. It reads the theme tokens and never sets a color itself. |
 | `assets/core.js`, `assets/shelf.js`, `assets/project.js` | Loading, the bookshelf carousel, the project page. |
-| `assets/covers.js` | The drawn book covers: small line animations, one per project. |
+| `assets/covers.js` | The drawn book covers: small line animations, one per project, plus general ones for new entries. |
+| `assets/manage.js`, `assets/manage.css` | The site manager. |
 | `tools/images.py` | Exports PSD, TIF, PNG or JPG to WebP, and makes book covers. |
 | `_archive/` | The old portfolio cover and blank filler pages, kept out of the site. |
 | `.nojekyll` | Tells GitHub Pages to serve files as they are. Keep it. |
 
-## 2. Add a project
+## 2. The site manager (the easy way)
+
+Open **https://shafiarch.github.io/works_shafi/manage.html**. It reads the published site, lets you change it, and gives you the changed files to upload. Nothing is sent anywhere; work in progress stays in your browser until you download or discard it.
+
+* **Works:** every entry in work list order. Drag rows or use the arrows. Each row has a placement: *Book and work list*, *Work list only*, or *Hidden*. Edit opens the editor; Remove asks once more before removing.
+* **Add a work:** choose the type first, and the form changes to suit it.
+  * *Project*: a folder in this repository. Folder name, title, description, category, year, facts, introduction, images (converted to WebP and resized in the browser; export PSD files to JPG or PNG first) and the page content blocks.
+  * *Website*: a web address, opened in a new tab or inside the site.
+  * *Repository*: a GitHub address; *Fill details from GitHub* reads the name, description and year.
+  * *Project from another site*: the address of a folder with a project.json on another GitHub Pages site.
+  * Every type has the book settings: spine text, spine colour, cover (line drawing, image with crop, or title only), cover title and cover description, with a live preview.
+* **Shelf order:** the books on the carousel, separate from the work list order. Take books off or put them back.
+* **Top bar:** add, remove and reorder links. Web addresses open in a new tab; *Add the Work list link* adds the link that opens the list.
+* **Site settings:** name, tagline, footer text, autoplay speed, the Work list button.
+* **Download:** checks for problems, lists the changed files, and downloads them as one zip that keeps the repository folders.
+
+**To publish:** unzip, then on GitHub open the repository, *Add file*, *Upload files*, drag the unzipped `content` and `projects` folders in, and *Commit changes*. Then press *Discard changes* in the manager to clear the draft. Removing a project takes it off the site; its folder stays in the repository until you delete it on GitHub.
+
+Images added in the manager live only in that browser tab until you download, so download before closing it.
+
+## 3. Add a project by hand
 
 1. Make a folder in `projects/`, lowercase with hyphens, for example `projects/seattle-library/`.
 2. Put the images in it (see section 6 for exporting from Photoshop). Simple names are easiest: `01.webp`, `02.webp`.
 3. Copy `projects/_template/project.json` into the folder and edit it. Delete any blocks you do not need.
 4. Make a cover: `python tools/images.py cover projects/seattle-library/01.webp --focus 0.5 0.5`
-5. Add one line to the `shelf` list in `content/site.json`, where you want the book to sit:
+5. Add one line to the `works` list in `content/site.json`, where you want it in the work list, and add the folder name to the `carousel` list where you want the book on the shelf:
    `{ "project": "seattle-library" },`
 
-## 3. Remove, hide or reorder
+## 4. Remove, hide or reorder
 
-* **Reorder:** move the lines in the `shelf` list of `content/site.json`. The shelf, the index and the previous / next links all follow that order.
+* **Reorder:** the order of `works` in `content/site.json` is the work list order (and the previous / next links on project pages). The order of `carousel` is the shelf order.
+* **Work list only:** leave the entry out of `carousel`.
 * **Hide for now:** add `"hidden": true` to the line, for example `{ "project": "ida-interior", "hidden": true }`. The folder stays, the book disappears.
 * **Remove for good:** delete the line, then delete the folder if you no longer want the files.
 * A line that points to a missing folder is skipped quietly, so the site never breaks.
 
-## 4. Change what is inside a project
+## 5. Change what is inside a project
 
 Everything below the introduction is the `blocks` list in that project's `project.json`, drawn top to bottom. Add, delete or move blocks freely. Any block can take `"hidden": true`.
 
@@ -65,12 +88,14 @@ The `shelf` part of `project.json` controls the book:
 | `spineColor`, `spineInk` | A fixed spine color for this one book (any CSS color), overriding the theme. |
 | `coverText`, `coverNote` | Text for a typographic cover. |
 
-## 5. Put another website or repository on the shelf
+## 6. Put another website or repository on the shelf
 
-A shelf line in `content/site.json` does not have to be a project folder:
+An entry in `works` does not have to be a project folder. Give it an `id` (used in `carousel`) and a `type` (`website` or `repository`):
 
 ```json
 {
+  "id": "grasshopper-collection",
+  "type": "website",
   "title": "Grasshopper Workflow Collection",
   "subtitle": "38 reusable Grasshopper definitions, open to download",
   "category": "Website",
@@ -84,7 +109,7 @@ A shelf line in `content/site.json` does not have to be a project folder:
 * For a cover image, put the file in `content/` and set `"cover": "grasshopper.webp"` inside `shelf`.
 * **A project kept in another repository:** if that repository publishes a folder with a `project.json` on GitHub Pages, use its address as the project: `{ "project": "https://shafiarch.github.io/Another_Repo/my-project/" }`. Images are read from that folder, and it opens on the portfolio's own project page.
 
-## 6. Images from Photoshop
+## 7. Images from Photoshop
 
 The web wants WebP or JPG, not PSD. Either export from Photoshop (File, Export, Export As, WebP or JPG, about 3000 to 4000 px on the long edge), or let the tool do it:
 
@@ -98,7 +123,7 @@ python tools/images.py cover projects/seattle-library/01.webp --focus 0.6 0.5 --
 * `cover` crops a portrait cover. `--focus X Y` is the point to centre on (0 to 1 across and down), `--zoom` moves closer. It writes `cover.webp` next to the image.
 * Clicking any image on a project page opens it full screen; clicking again shows it at full resolution, so presentation boards stay readable.
 
-## 7. Themes
+## 8. Themes
 
 Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink`, `--ink-2`, `--rule`, `--accent`, the typefaces, and `--tone-*-bg` / `--tone-*-ink` for the four spine tones). All three use Archivo throughout. Included:
 
@@ -114,13 +139,13 @@ Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink
 
 Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--spine-ratio`, `--cover-ratio`, `--open-angle`. A theme can override any of them in its own `:root`.
 
-## 8. Publish and preview
+## 9. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=8`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=10`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 
-## 9. Writing
+## 10. Writing
 
 No em dashes or en dashes anywhere; use commas, semicolons, parentheses or periods.

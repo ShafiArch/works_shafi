@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Site manager · Works</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="themes/themes.js?v=10"></script>
+  <link rel="stylesheet" href="assets/site.css?v=10">
+  <link rel="stylesheet" href="assets/manage.css?v=10">
+</head>
+<body class="page-manage">
+  <header class="m-top">
+    <div class="m-brand"><a href="index.html">Works</a><span>Site manager</span></div>
+    <div class="m-status" data-status></div>
+    <div class="m-actions">
+      <button type="button" class="m-btn" data-reset>Discard changes</button>
+      <button type="button" class="m-btn m-primary" data-goto="download">Review and download</button>
+    </div>
+  </header>
+  <div class="m-banner" data-banner hidden></div>
+  <div class="m-layout">
+    <nav class="m-nav" aria-label="Sections">
+      <button type="button" data-tab="works" aria-current="page">Works</button>
+      <button type="button" data-tab="shelf">Shelf order</button>
+      <button type="button" data-tab="topbar">Top bar</button>
+      <button type="button" data-tab="settings">Site settings</button>
+      <button type="button" data-tab="download">Download</button>
+    </nav>
+    <main class="m-main" data-main><p class="m-muted">Loading the site content.</p></main>
+  </div>
+  <div class="m-drawer" data-drawer hidden></div>
+  <script src="assets/core.js?v=10"></script>
+  <script src="assets/covers.js?v=10"></script>
+  <script src="assets/manage.js?v=10"></script>
+</body>
+</html>
