@@ -155,14 +155,15 @@ button { font: inherit; color: inherit; }
   display: block; margin-top: auto;
   width: calc(var(--cover-w) * var(--cover-art-w)); height: calc(var(--cover-w) * var(--cover-art-w) * 0.95);
 }
+.ac-foot {
+  display: flex; justify-content: space-between; align-items: flex-end; align-items: last baseline; gap: 10px;
+  margin-top: calc(var(--cover-w) * 0.04);
+}
 .ac-desc {
-  margin: 0 0 calc(var(--cover-w) * 0.045); max-width: 74%;
-  font-size: calc(var(--cover-w) * 0.033); line-height: 1.35; opacity: 0.8;
+  flex: 0 1 56%; font-size: calc(var(--cover-w) * 0.033); line-height: 1.35; opacity: 0.8;
   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
 }
-.ac-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: calc(var(--cover-w) * 0.042); }
-.ac-meta { color: var(--cover-ink); opacity: 0.6; }
-.ac-author { color: var(--cover-accent); font-weight: 600; }
+.ac-tag { flex: none; font-size: calc(var(--cover-w) * 0.038); color: var(--cover-accent); font-weight: 600; white-space: nowrap; }
 
 /* caption and controls */
 .caption { text-align: center; padding: 6px var(--gutter) 0; min-height: 132px; }
