@@ -1,0 +1,22 @@
+{
+  "title": "Space Under Flyover",
+  "subtitle": "Possible alternative use of the space under a flyover, a case of Dhaka",
+  "year": "",
+  "category": "Thesis",
+  "shelf": { "cover": "cover.webp", "tone": "dark" },
+  "meta": [
+    ["Type", "Thesis project"],
+    ["Site", "Mouchak, Dhaka"],
+    ["Supervisors", "Sheikh Ahsan Ullah Mojumder, Nesfun Nahar"]
+  ],
+  "intro": "The major flyovers of Dhaka sit within the central business district, built to relieve vehicular congestion at rail crossings. They bypass traffic, and they also bypass the pedestrians who were once the clients of the businesses along the road. Shops lost trade, workers from the nearby settlements lost jobs, and the leftover space beneath became a place people avoid.\n\nThe project reads those remainders as opportunity. An uninterrupted pedestrian route runs under the flyover, reached from underground and ground level, and changes through the day into a jogging trail, racing track, access way and vendor corridor.",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "alt": "Site analysis, concept and plans along the flyover" },
+    { "type": "text", "heading": "Program",
+      "body": "A neighbourhood study set the local program: public space, food court, sports point, bike stand, shops and vendor space to bring pedestrian flow from the locality. A gallery point, exhibition facilities and commercial display draw people from the city." },
+    { "type": "image", "src": "02.webp", "alt": "Interior views of the sports point, food court and gallery" },
+    { "type": "text", "heading": "Interventions",
+      "body": "Dust, visual obstruction, noise, shadow and wind thrust between the roads called for micro scale responses: rainwater harvesting, sprinkler mist, air purifying and noise reducing planting, polycarbonate absorbers, ceiling mirrors, sound absorbing surfaces, integrated planters and bike stands, drinking water and resting places for pedestrians." },
+    { "type": "image", "src": "03.webp", "alt": "Sections and details of the sports point" }
+  ]
+}

@@ -1,0 +1,39 @@
+/* Night shelf: the reference look. Black room, grey and charcoal spines,
+   one burnt orange, a condensed serif for headings, Archivo for reading. */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Instrument+Serif&display=swap");
+
+:root {
+  color-scheme: dark;
+  --bg: #050505;
+  --ink: #f1efea;
+  --ink-2: #8f8d88;
+  --rule: rgba(255, 255, 255, 0.16);
+  --accent: #c4512f;
+
+  --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --display-case: uppercase;
+  --display-tracking: 0.02em;
+  --display-weight: 400;
+  --display-stretch: 100%;
+  --title-font: "Instrument Serif", Georgia, serif;
+  --title-weight: 400;
+  --title-stretch: 100%;
+  --title-tracking: 0;
+
+  --font-spine: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --spine-weight: 600;
+  --spine-stretch: 100%;
+  --spine-case: none;
+
+  --tone-light-bg: #a8a8a5;  --tone-light-ink: #111111;
+  --tone-mid-bg:   #cfcfcb;  --tone-mid-ink:   #111111;
+  --tone-dark-bg:  #262626;  --tone-dark-ink:  #f1efea;
+  --tone-accent-bg:#c4512f;  --tone-accent-ink:#f6eee8;
+
+  --cover-bg: #ecebe7;
+  --cover-ink: #0b0b0b;
+  --cover-accent: #c4512f;
+  --floor-shadow: rgba(0,0,0,.9);
+  --spine-shade: linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,255,255,.06) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.18));
+}

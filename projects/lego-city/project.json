@@ -1,0 +1,24 @@
+{
+  "title": "Lego City",
+  "subtitle": "A plastic bank and modular housing for Makoko, Lagos",
+  "year": "2021",
+  "category": "Competition",
+  "shelf": { "cover": "cover.webp", "tone": "accent" },
+  "meta": [
+    ["Competition", "Lagos Plastic City"],
+    ["Recognition", "Founders' Choice Award, 2021"],
+    ["Site", "Makoko, Lagos"],
+    ["Team", "Shafiul Islam, Shaikh Ali Shaan, Mayisha Tasnim Moury"]
+  ],
+  "intro": "Lagos produces 2,250 tonnes of plastic every day, and Makoko alone produces 569 tonnes. Lego City turns that waste into the building material of the community itself.\n\nA plastic bank works like any other bank, except people deposit used domestic plastic instead of money. In return they withdraw recycled plastic blocks that join like Lego and can become furniture, infrastructure, house modules and amenities. Construction becomes a community method, with raw materials and finished modules carried by boat.",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "alt": "Illustrated canal view of Lego City on the water" },
+    { "type": "text", "heading": "Plastic bank",
+      "body": "The more plastic a household deposits, the more blocks it can draw for different purposes. Once its own needs are met, it can build Lego modules for rent or sale. The bank gathers, sorts and stores the plastic; the recycling industry turns it into interlocking blocks." },
+    { "type": "image", "src": "02.webp", "alt": "Plastic bank diagram and construction phase isometric" },
+    { "type": "image", "src": "03.webp", "alt": "Cluster formation from single modules to mega clusters" },
+    { "type": "text", "heading": "The Lego house",
+      "body": "One Lego panel holds 4.5 kg of recycled plastic, and one house between 400 and 430 kg. A mega cluster gathers at least 140 houses over 41,972 sq ft, roughly 84 tonnes of recycled plastic including circulation. The bricks are reported to be fire resistant, waterproof, well insulated and wind resistant, about 40% cheaper and 20% lighter than conventional bricks." },
+    { "type": "image", "src": "04.webp", "alt": "Exploded isometric details of the Lego house" }
+  ]
+}

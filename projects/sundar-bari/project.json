@@ -1,0 +1,16 @@
+{
+  "title": "Sundar Bari",
+  "subtitle": "A homestead in the Sundarbans",
+  "year": "",
+  "category": "Competition",
+  "shelf": { "cover": "cover.webp", "tone": "light" },
+  "meta": [
+    ["Type", "Competition entry, Sundar Bari"],
+    ["Scope", "A residential module resilient to cyclones"],
+    ["Tools", "Twinmotion, Lightroom, SketchUp, AutoCAD"]
+  ],
+  "intro": "Affordable housing for low income families of the Sundarbans, who depend on the forest for food, nutrition and income. Construction there leans on foreign materials and plastic that sit outside the ecosystem, and livelihoods built on honey collecting, wood cutting and fishing put pressure on its flora and fauna.\n\nThe homestead answers with a cluster of round, thatched residential units shaped to resist cyclones and built from the place itself.",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "alt": "Homestead site plan, section and renders" }
+  ]
+}
