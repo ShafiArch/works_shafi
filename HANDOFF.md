@@ -83,7 +83,7 @@ Projects on the site: `lego-city`, `space-under-flyover`, `natural-healing`, `su
 
 ### projects/<folder>/project.json
 
-```json
+```jsonc
 {
   "title": "...", "subtitle": "...", "year": "2021", "category": "Competition",
   "shelf": { "art": "lego", "cover": "cover.webp", "tone": "light", "spine": "", "coverText": "", "coverNote": "", "spineColor": "", "spineInk": "" },
