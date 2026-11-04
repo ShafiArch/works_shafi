@@ -19,7 +19,7 @@
       "category": "Website",
       "url": "https://shafiarch.github.io/Grasshopper/",
       "open": "tab",
-      "shelf": { "tone": "light", "spine": "Grasshopper Collection", "cover": "", "coverText": "Grasshopper Workflow Collection", "coverNote": "Parametric systems, form finding, environmental analysis, optimization" }
+      "shelf": { "art": "graph", "tone": "light", "spine": "Grasshopper Collection", "cover": "", "coverText": "Grasshopper Collection", "coverNote": "Parametric systems, form finding, environmental analysis, optimization" }
     },
     { "project": "sundar-bari" },
     { "project": "ida-interior" }

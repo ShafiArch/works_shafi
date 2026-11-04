@@ -22,7 +22,9 @@
   function bookHTML(item, i, site) {
     var sh = item.shelf, t = tone(item, i);
     var style = sh.spineColor ? ' style="--spine-bg:' + esc(sh.spineColor) + (sh.spineInk ? ";--spine-ink:" + esc(sh.spineInk) : "") + '"' : "";
-    var face = item.cover
+    var face = sh.art && window.Covers && window.Covers.has(sh.art)
+      ? artCover(item, site)
+      : item.cover
       ? '<img src="' + esc(item.cover) + '" alt="" draggable="false" ' + (i < 4 ? "" : 'loading="lazy" ') + 'decoding="async">'
       : S.typeCover(item, site);
     return '<a class="book tone-' + esc(t) + '" href="' + esc(item.href) + '"' + S.linkAttrs(item.kind === "link" && item.open === "tab" ? item.href : "") +
@@ -32,6 +34,15 @@
       (item.year ? '<span class="spine-foot">' + esc(item.year) + "</span>" : "") + "</span>" +
       '<span class="face cover">' + face + "</span>" +
       "</span></a>";
+  }
+
+  /* A drawn cover: title, a live line drawing, and a small footer. */
+  function artCover(item, site) {
+    var meta = [item.category, item.year].filter(Boolean).map(esc).join(" · ");
+    return '<span class="art-cover">' +
+      '<span class="ac-title">' + esc(item.shelf.coverText || item.title) + "</span>" +
+      '<canvas class="ac-canvas" data-art="' + esc(item.shelf.art) + '" aria-hidden="true"></canvas>' +
+      '<span class="ac-foot"><span class="ac-meta">' + meta + '</span><span class="ac-author">' + esc(site.name) + "</span></span></span>";
   }
 
   function build(site, items) {
@@ -57,6 +68,11 @@
     var books = [].slice.call(track.children), caption = root.querySelector(".caption");
     var count = root.querySelector("[data-count]"), playBtn = root.querySelector("[data-play]");
     var bar = root.querySelector("[data-progress]");
+    var canvases = books.map(function (b, i) {
+      var c = b.querySelector(".ac-canvas");
+      if (c && window.Covers) window.Covers.mount(c, c.dataset.art, i);
+      return c;
+    });
     var n = items.length, active = 0, playing = (site.autoplaySeconds || 0) > 0;
     var delay = (site.autoplaySeconds || 3.5) * 1000, timer = null, hold = false, started = 0;
 
@@ -109,6 +125,7 @@
       });
       layout();
       renderCaption();
+      if (window.Covers) window.Covers.setActive(canvases[active]);
       if (user) restart();
     }
 
@@ -160,6 +177,7 @@
       track.classList.add("no-anim");
       fitSpines();
       layout();
+      if (window.Covers) window.Covers.refresh();
       clearTimeout(rz);
       rz = setTimeout(function () { track.classList.remove("no-anim"); }, 120);
     });
@@ -172,6 +190,7 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSpines(); layout(); });
     window.addEventListener("site-theme", function () {
       fitSpines(); layout();
+      if (window.Covers) window.Covers.refresh();
       if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSpines(); layout(); });
     });
     loop();

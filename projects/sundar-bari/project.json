@@ -3,7 +3,7 @@
   "subtitle": "A homestead in the Sundarbans",
   "year": "",
   "category": "Competition",
-  "shelf": { "cover": "cover.webp", "tone": "mid" },
+  "shelf": { "art": "homestead", "cover": "cover.webp", "tone": "mid" },
   "meta": [
     ["Type", "Competition entry, Sundar Bari"],
     ["Scope", "A residential module resilient to cyclones"],

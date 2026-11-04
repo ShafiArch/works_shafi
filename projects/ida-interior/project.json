@@ -3,7 +3,7 @@
   "subtitle": "Interior visualization for Interior Design of the Year 2020",
   "year": "2020",
   "category": "Visualization",
-  "shelf": { "cover": "cover.webp", "tone": "dark" },
+  "shelf": { "art": "interior", "cover": "cover.webp", "tone": "dark" },
   "meta": [
     ["Competition", "IDA, Interior Design of the Year 2020"],
     ["Type", "Individual entry, interior visualization"],

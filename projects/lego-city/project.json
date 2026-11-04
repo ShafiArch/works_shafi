@@ -3,7 +3,7 @@
   "subtitle": "A plastic bank and modular housing for Makoko, Lagos",
   "year": "2021",
   "category": "Competition",
-  "shelf": { "cover": "cover.webp", "tone": "light" },
+  "shelf": { "art": "lego", "cover": "cover.webp", "tone": "light" },
   "meta": [
     ["Competition", "Lagos Plastic City"],
     ["Recognition", "Founders' Choice Award, 2021"],

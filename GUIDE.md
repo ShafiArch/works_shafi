@@ -14,6 +14,7 @@ Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no 
 | `themes/*.css` | One file per theme: colors, typefaces, spine tones. |
 | `assets/site.css` | Layout and motion only. It reads the theme tokens and never sets a color itself. |
 | `assets/core.js`, `assets/shelf.js`, `assets/project.js` | Loading, the bookshelf carousel, the project page. |
+| `assets/covers.js` | The drawn book covers: small line animations, one per project. |
 | `tools/images.py` | Exports PSD, TIF, PNG or JPG to WebP, and makes book covers. |
 | `_archive/` | The old portfolio cover and blank filler pages, kept out of the site. |
 | `.nojekyll` | Tells GitHub Pages to serve files as they are. Keep it. |
@@ -57,7 +58,8 @@ The `shelf` part of `project.json` controls the book:
 
 | Field | Meaning |
 |---|---|
-| `cover` | Image shown when the book opens. Leave empty for a typographic cover. |
+| `art` | The drawn, animated cover: `lego`, `flyover`, `healing`, `homestead`, `interior` or `graph`. It takes priority over `cover`. New drawings go in `assets/covers.js` (the `ART` list), in the same line style as the Grasshopper cards. |
+| `cover` | Image shown when the book opens if there is no `art`. Leave both empty for a typographic cover. |
 | `tone` | Spine color from the theme: `light`, `mid`, `dark`, `accent`, or `auto`. The shelf currently uses only the neutral three. |
 | `spine` | Shorter text for the spine, if the title is long. |
 | `spineColor`, `spineInk` | A fixed spine color for this one book (any CSS color), overriding the theme. |
@@ -115,7 +117,7 @@ Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--s
 ## 8. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=3`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=4`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 
