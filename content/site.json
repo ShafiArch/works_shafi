@@ -1,0 +1,29 @@
+{
+  "name": "Shafiul Islam",
+  "tagline": "Architecture, visualization and computational design",
+  "shelfTitle": "Selected Work",
+  "autoplaySeconds": 3.5,
+  "showIndex": true,
+  "nav": [
+    { "label": "Work", "href": "index.html#index" },
+    { "label": "Grasshopper", "href": "https://shafiarch.github.io/Grasshopper/" },
+    { "label": "GitHub", "href": "https://github.com/ShafiArch" }
+  ],
+  "shelf": [
+    { "project": "lego-city" },
+    { "project": "space-under-flyover" },
+    { "project": "natural-healing" },
+    {
+      "title": "Grasshopper Workflow Collection",
+      "subtitle": "38 reusable Grasshopper definitions, open to download",
+      "category": "Website",
+      "url": "https://shafiarch.github.io/Grasshopper/",
+      "open": "tab",
+      "shelf": { "tone": "light", "spine": "Grasshopper Collection", "cover": "", "coverText": "Grasshopper Workflow Collection", "coverNote": "Parametric systems, form finding, environmental analysis, optimization" }
+    },
+    { "project": "sundar-bari" },
+    { "project": "ida-interior" }
+  ],
+  "about": "Contributor to the Grasshopper Workflow Collection. MS Design Technology, University of Washington.",
+  "footer": "Shafiul Islam"
+}

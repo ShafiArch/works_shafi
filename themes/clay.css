@@ -1,0 +1,38 @@
+/* Clay: warm paper, brick and earth tones, a classic serif for headings. */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Cormorant+Garamond:wght@500;600&display=swap");
+
+:root {
+  color-scheme: light;
+  --bg: #ebe5da;
+  --ink: #2a2420;
+  --ink-2: #776c62;
+  --rule: rgba(42, 36, 32, 0.18);
+  --accent: #a8482a;
+
+  --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Cormorant Garamond", Georgia, serif;
+  --display-case: uppercase;
+  --display-tracking: 0.12em;
+  --display-weight: 600;
+  --display-stretch: 100%;
+  --title-font: "Cormorant Garamond", Georgia, serif;
+  --title-weight: 500;
+  --title-stretch: 100%;
+  --title-tracking: -0.01em;
+
+  --font-spine: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --spine-weight: 500;
+  --spine-stretch: 80%;
+  --spine-case: uppercase;
+
+  --tone-light-bg: #d8cdbb;  --tone-light-ink: #2a2420;
+  --tone-mid-bg:   #8d7f6f;  --tone-mid-ink:   #f4efe7;
+  --tone-dark-bg:  #3a302a;  --tone-dark-ink:  #efe6d8;
+  --tone-accent-bg:#a8482a;  --tone-accent-ink:#f6ece2;
+
+  --cover-bg: #f6f1e8;
+  --cover-ink: #2a2420;
+  --cover-accent: #a8482a;
+  --floor-shadow: rgba(60,40,20,.32);
+  --spine-shade: linear-gradient(90deg, rgba(0,0,0,.14), rgba(255,255,255,.08) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.1));
+}

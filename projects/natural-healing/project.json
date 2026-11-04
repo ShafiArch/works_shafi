@@ -1,0 +1,14 @@
+{
+  "title": "Natural Healing",
+  "subtitle": "An extension of the home for mental and physical health in lockdown",
+  "year": "",
+  "category": "Competition",
+  "shelf": { "cover": "cover.webp", "tone": "mid" },
+  "meta": [
+    ["Type", "Competition entry, Tamayouz"]
+  ],
+  "intro": "Lockdown showed how a healthy person can become unwell after a long stay indoors, and how a dwelling alone cannot secure food and nutrition in an emergency. Natural Healing proposes an extension of the residence that keeps nature close while holding the line of social distance.\n\nWire mesh carries vegetable creepers, a water body and a garden sit inside, and an aquaponics plantation provides food along with a place to garden and fish through quarantine.",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "alt": "Plan, section, exploded axonometric and render of the healing extension" }
+  ]
+}

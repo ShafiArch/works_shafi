@@ -1,0 +1,16 @@
+{
+  "title": "IDA Interior",
+  "subtitle": "Interior visualization for Interior Design of the Year 2020",
+  "year": "2020",
+  "category": "Visualization",
+  "shelf": { "cover": "cover.webp", "tone": "dark" },
+  "meta": [
+    ["Competition", "IDA, Interior Design of the Year 2020"],
+    ["Type", "Individual entry, interior visualization"],
+    ["Tools", "Twinmotion, Lightroom"]
+  ],
+  "intro": "A double height living and dining space in brick and timber, studied through daylight: tall glazing, a slatted screen and planting that carry the light down to the floor.",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "alt": "Double height living and dining interior" }
+  ]
+}

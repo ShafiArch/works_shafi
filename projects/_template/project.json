@@ -1,0 +1,41 @@
+{
+  "title": "Project Title",
+  "subtitle": "One line that says what the project is",
+  "year": "2026",
+  "category": "Competition",
+  "shelf": {
+    "cover": "cover.webp",
+    "tone": "auto",
+    "spine": "Short Spine Title",
+    "spineColor": "",
+    "spineInk": "",
+    "coverText": "",
+    "coverNote": ""
+  },
+  "meta": [
+    ["Type", "Competition entry"],
+    ["Site", "City, Country"],
+    ["Team", "Names"],
+    ["Recognition", "Award, year"],
+    ["Tools", "Rhino, Grasshopper, Twinmotion"]
+  ],
+  "intro": "First paragraph of the introduction.\n\nSecond paragraph. Use **bold**, *italic* and [links](https://example.com).",
+  "blocks": [
+    { "type": "image", "src": "01.webp", "caption": "Optional caption", "alt": "What the image shows", "width": "full" },
+    { "type": "text", "heading": "A heading", "body": "Paragraph one.\n\nParagraph two." },
+    { "type": "gallery", "columns": 2, "items": [
+      { "src": "02.webp", "caption": "Left" },
+      { "src": "03.webp", "caption": "Right" }
+    ] },
+    { "type": "quote", "text": "A short statement worth pulling out.", "by": "Jury comment" },
+    { "type": "video", "src": "walkthrough.mp4", "poster": "01.webp", "caption": "Walkthrough" },
+    { "type": "video", "youtube": "VIDEO_ID" },
+    { "type": "video", "vimeo": "VIDEO_ID" },
+    { "type": "embed", "url": "https://shafiarch.github.io/Grasshopper/", "ratio": "16 / 10", "caption": "Live site" },
+    { "type": "links", "heading": "Further", "items": [
+      { "label": "Competition page", "url": "https://example.com" },
+      { "label": "Grasshopper definition", "url": "https://github.com/ShafiArch/Grasshopper" }
+    ] },
+    { "type": "image", "src": "04.webp", "hidden": true }
+  ]
+}
