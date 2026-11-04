@@ -78,7 +78,7 @@
 
   /* Space Under Flyover: an elevated deck on piers; people walk the route beneath */
   ART.flyover = {
-    view: { el: 0.42, spin: 0.07, zoom: 0.44, yc: 0.62 },
+    view: { el: 0.42, spin: 0.07, zoom: 0.34, yc: 0.6 },
     step: function (t) {
       var out = [], z = 0.62, w = 0.24, len = 1.35;
       out.push(L([[-len, -w, z], [len, -w, z]], { w: 1.4 })); out.push(L([[-len, w, z], [len, w, z]], { w: 1.4 }));

@@ -42,6 +42,7 @@
     return '<span class="art-cover">' +
       '<span class="ac-title">' + esc(item.shelf.coverText || item.title) + "</span>" +
       '<canvas class="ac-canvas" data-art="' + esc(item.shelf.art) + '" aria-hidden="true"></canvas>' +
+      ((item.shelf.coverNote || item.subtitle) ? '<span class="ac-desc">' + esc(item.shelf.coverNote || item.subtitle) + "</span>" : "") +
       '<span class="ac-foot"><span class="ac-meta">' + meta + '</span><span class="ac-author">' + esc(site.name) + "</span></span></span>";
   }
 

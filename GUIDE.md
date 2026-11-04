@@ -58,7 +58,7 @@ The `shelf` part of `project.json` controls the book:
 
 | Field | Meaning |
 |---|---|
-| `art` | The drawn, animated cover (its size on the cover is `--cover-art-scale` in `assets/site.css`, now 0.5): `lego`, `flyover`, `healing`, `homestead`, `interior` or `graph`. It takes priority over `cover`. New drawings go in `assets/covers.js` (the `ART` list), in the same line style as the Grasshopper cards. |
+| `art` | The drawn, animated cover (it sits bottom left above the description; its size is `--cover-art-w` in `assets/site.css`): `lego`, `flyover`, `healing`, `homestead`, `interior` or `graph`. It takes priority over `cover`. New drawings go in `assets/covers.js` (the `ART` list), in the same line style as the Grasshopper cards. |
 | `cover` | Image shown when the book opens if there is no `art`. Leave both empty for a typographic cover. |
 | `tone` | Spine color from the theme: `light`, `mid`, `dark`, `accent`, or `auto`. The shelf currently uses only the neutral three. |
 | `spine` | Shorter text for the spine, if the title is long. |
@@ -117,7 +117,7 @@ Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--s
 ## 8. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=5`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=6`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 
