@@ -1,0 +1,55 @@
+/* Layout editor. Builds on manage.css. */
+.page-layout { height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+.page-layout .m-top { position: static; flex: none; }
+.l-pick select { font: inherit; font-size: 14px; font-weight: 600; padding: 7px 10px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); max-width: 240px; }
+.l-devices { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--rule); border-radius: 8px; }
+.l-devices button { display: inline-flex; align-items: center; gap: 5px; background: none; border: 0; border-radius: 6px; padding: 5px 8px; font: inherit; font-size: 12px; color: var(--ink-2); cursor: pointer; }
+.l-devices button:hover { color: var(--ink); }
+.l-devices button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+@media (max-width: 1750px) { .l-devices button span { display: none; } }
+.m-icon:disabled { opacity: 0.35; cursor: default; }
+
+.l-layout { flex: 1; min-height: 0; display: grid; grid-template-columns: 400px minmax(0, 1fr); }
+.l-side { overflow: auto; border-right: 1px solid var(--rule); padding: 0 20px 60px; }
+.l-stage { position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; padding: 14px 24px; background: color-mix(in srgb, var(--ink) 5%, var(--bg)); }
+.l-device-label { font-size: 12px; color: var(--ink-2); margin-bottom: 10px; }
+.l-frame { position: relative; overflow: hidden; background: var(--bg); border-radius: 10px; box-shadow: 0 0 0 1px var(--rule), 0 18px 50px rgba(0, 0, 0, 0.14); }
+.l-frame iframe { position: absolute; left: 0; top: 0; border: 0; transform-origin: 0 0; background: var(--bg); }
+@media (max-width: 900px) {
+  .page-layout { height: auto; overflow: auto; }
+  .l-layout { grid-template-columns: 1fr; }
+  .l-side { border-right: 0; max-height: none; }
+  .l-stage { min-height: 70vh; }
+}
+
+.l-sec { padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.l-sec:last-child { border-bottom: 0; }
+.l-sec-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.l-sec-head h2 { margin: 0; font-size: 16px; font-weight: 600; }
+.l-sec-head h2 .m-muted { font-weight: 400; font-size: 12px; }
+.l-h3 { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2); margin: 18px 0 10px; }
+
+.l-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
+.l-item { display: grid; grid-template-columns: auto 74px minmax(0, 1fr) auto; gap: 8px; align-items: center; padding: 8px 6px; border-bottom: 1px solid var(--rule); cursor: pointer; font-size: 13px; }
+.l-item[data-pick="header"] { grid-template-columns: 90px 1fr; }
+.l-item:hover { background: var(--rule); }
+.l-item.is-sel { background: color-mix(in srgb, var(--accent) 12%, var(--bg)); box-shadow: inset 2px 0 0 var(--accent); }
+.l-item.is-hidden { opacity: 0.45; }
+.l-item.is-beside { padding-left: 22px; }
+.l-item.is-drag { opacity: 0.4; }
+.l-item.is-over { box-shadow: inset 0 2px 0 var(--accent); }
+.l-kind { font-weight: 600; }
+.l-what { color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.l-w { font-size: 11px; color: var(--ink-2); white-space: nowrap; }
+.l-add { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 5px; }
+.l-add .m-label { width: 100%; }
+
+.l-seg { display: flex; flex-wrap: wrap; gap: 4px; }
+.l-seg label { cursor: pointer; }
+.l-seg input { position: absolute; opacity: 0; pointer-events: none; }
+.l-seg span { display: inline-block; padding: 5px 10px; border: 1px solid var(--rule); border-radius: 6px; font-size: 12px; }
+.l-seg label:hover span { border-color: var(--ink-2); }
+.l-seg input:checked + span { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.l-seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 1px; }
+.l-note { font-size: 12px; color: var(--accent); margin: -6px 0 14px; }
+.l-inspector .m-field { margin-bottom: 14px; }

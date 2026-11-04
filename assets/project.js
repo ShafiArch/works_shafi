@@ -7,9 +7,17 @@
   var q = new URLSearchParams(location.search);
   var main = document.querySelector("[data-project]");
 
+  /* Preview mode, used by the layout editor (layout.html): the editor sends the
+     project as a message and this page draws it with the real styles. */
+  var PREVIEW = q.get("preview") === "1" && window.parent !== window, selected = null;
+  function markSelected() {
+    [].forEach.call(document.querySelectorAll("[data-block]"), function (el) { el.classList.toggle("is-selected", el.dataset.block === String(selected)); });
+  }
+
   S.getJSON("content/site.json").then(function (site) {
     S.renderChrome(site);
     return S.loadShelf(site).then(function (items) {
+      if (PREVIEW) return startPreview(site, items);
       if (q.get("e")) return showEmbed(site, items, q.get("e"));
       var id = q.get("p");
       if (!id) { location.replace("index.html"); return; }
@@ -26,10 +34,18 @@
 
   function src(s, base) { return S.abs(s, base); }
 
-  function figure(item, base, cls) {
+  /* image shape and focus come from the block layout (see LAYOUT below) */
+  var RATIOS = { "16/9": "16 / 9", "4/3": "4 / 3", "3/2": "3 / 2", "1/1": "1 / 1", "3/4": "3 / 4" };
+  var FOCUS = { center: "50% 50%", top: "50% 0%", bottom: "50% 100%", left: "0% 50%", right: "100% 50%" };
+  function imgStyle(l) {
+    l = l || {};
+    var r = RATIOS[l.ratio];
+    return r ? ' style="aspect-ratio:' + r + ";object-fit:cover;object-position:" + (FOCUS[l.focus] || FOCUS.center) + '"' : "";
+  }
+  function figure(item, base, cls, l) {
     var u = src(item.src, base);
     return '<figure class="' + (cls || "") + '">' +
-      '<a class="zoom" href="' + esc(u) + '" data-zoom><img src="' + esc(u) + '" alt="' + esc(item.alt || item.caption || "") + '" loading="lazy" decoding="async"></a>' +
+      '<a class="zoom" href="' + esc(u) + '" data-zoom><img src="' + esc(u) + '" alt="' + esc(item.alt || item.caption || "") + '" loading="lazy" decoding="async"' + imgStyle(l) + "></a>" +
       (item.caption ? "<figcaption>" + S.inline(item.caption) + "</figcaption>" : "") + "</figure>";
   }
 
@@ -44,15 +60,17 @@
 
   /* Each block type. Add a new one here and it can be used in any project.json. */
   var BLOCKS = {
-    image: function (b, base) { return figure(b, base, "blk-image w-" + (b.width || "full")); },
+    image: function (b, base) { return figure(b, base, "blk-image", b.layout); },
     gallery: function (b, base) {
       var cols = Math.max(1, Math.min(4, b.columns || 2));
       return '<div class="blk-gallery w-' + esc(b.width || "full") + '" style="--cols:' + cols + '">' +
-        (b.items || []).map(function (it) { return figure(typeof it === "string" ? { src: it } : it, base, ""); }).join("") + "</div>" +
+        (b.items || []).map(function (it) { return figure(typeof it === "string" ? { src: it } : it, base, "", b.layout); }).join("") + "</div>" +
         (b.caption ? '<p class="blk-caption">' + S.inline(b.caption) + "</p>" : "");
     },
     text: function (b) {
-      return '<section class="blk-text">' +
+      var l = b.layout || {};
+      var cls = (l.text === "stacked" ? " is-stacked" : "") + (l.size === "large" ? " is-large" : "") + (l.textAlign === "center" ? " is-center" : "");
+      return '<section class="blk-text' + cls + '">' +
         (b.heading ? "<h2>" + esc(b.heading) + "</h2>" : "<span></span>") +
         '<div class="prose">' + S.md(b.body) + "</div></section>";
     },
@@ -77,34 +95,90 @@
     spacer: function () { return '<div class="blk-spacer"></div>'; }
   };
 
+  /* ---------- layout ----------
+     Blocks sit on a 12 column grid. A block's "layout" picks from fixed options,
+     so a page cannot break on another screen size:
+       width   full | wide | twothirds | half | third      (12, 10, 8, 6, 4 columns)
+       align   start | center | end                        (where a row sits)
+       beside  true to sit next to the block before, when it fits
+       valign  start | center | end                        (inside a row)
+       space   none | small | normal | large               (space above)
+     Half screen and tablet: narrow blocks widen to half or full. Phone: everything
+     stacks at full width. Those rules live in site.css, not in the content. */
+  var SPANS = { full: 12, wide: 10, twothirds: 8, half: 6, third: 4 };
+  var MID = { 12: 12, 10: 12, 8: 12, 6: 6, 4: 6 };
+  var SPACE = { none: "14px", small: "32px", large: "clamp(96px, 15vh, 176px)" };
+  function layoutOf(b) {
+    var l = b.layout || {}, media = /^(image|gallery|video|embed)$/.test(b.type);
+    var w = l.width || (media && b.width === "wide" ? "wide" : media && b.width === "text" ? "twothirds" : "full");
+    return { span: SPANS[w] || 12, align: l.align || "start", beside: !!l.beside, valign: l.valign || "start", space: l.space || "normal" };
+  }
+  function startCol(align, total) { return total > 12 ? "auto" : align === "center" ? Math.floor((12 - total) / 2) + 1 : align === "end" ? 13 - total : 1; }
+  function blocksHTML(p, base) {
+    var rows = [], cur = null;
+    (p.blocks || []).forEach(function (b, i) {
+      if (!b || b.hidden || !BLOCKS[b.type]) { if (b && !BLOCKS[b.type]) console.warn("Unknown block type:", b.type); return; }
+      var L = layoutOf(b);
+      if (L.beside && cur && cur.total + L.span <= 12) { cur.cells.push({ b: b, i: i, L: L }); cur.total += L.span; }
+      else { cur = { cells: [{ b: b, i: i, L: L }], total: L.span }; rows.push(cur); }
+    });
+    return rows.map(function (r) {
+      var first = r.cells[0].L, totalM = r.cells.reduce(function (n, c) { return n + MID[c.L.span]; }, 0);
+      var rowStyle = SPACE[first.space] ? ' style="--space:' + SPACE[first.space] + '"' : "";
+      return '<div class="p-row"' + rowStyle + ">" + r.cells.map(function (c, k) {
+        var st = "--sp:" + c.L.span + ";--sp-m:" + MID[c.L.span] + ";--va:" + c.L.valign;
+        if (k === 0) st += ";--cs:" + startCol(first.align, r.total) + ";--cs-m:" + startCol(first.align, totalM);
+        return '<div class="p-cell" data-block="' + c.i + '" style="' + st + '">' + BLOCKS[c.b.type](c.b, base) + "</div>";
+      }).join("") + "</div>";
+    }).join("");
+  }
+
   function render(site, p, base, items, pos) {
     document.title = p.title + " · " + site.name;
     var meta = (p.meta || []).filter(function (m) { return m && m[1]; });
     var kicker = [p.category, p.year].filter(Boolean).map(esc).join(" · ");
+    var pl = p.layout || {};
 
     var html =
-      '<header class="p-head">' +
+      '<header class="p-head' + (pl.header === "center" ? " is-center" : "") + '" data-block="header">' +
       '<a class="p-back" href="index.html"><span aria-hidden="true">&#8592;</span> Shelf</a>' +
       (kicker ? '<div class="p-kicker">' + kicker + "</div>" : "") +
       '<h1 class="p-title">' + esc(p.title) + "</h1>" +
       (p.subtitle ? '<p class="p-sub">' + esc(p.subtitle) + "</p>" : "") +
       "</header>" +
-      '<div class="p-lede">' +
+      '<div class="p-lede' + (pl.facts === "below" ? " facts-below" : "") + (pl.intro === "large" ? " intro-large" : "") + '" data-block="intro">' +
       '<div class="prose p-intro">' + S.md(p.intro) + "</div>" +
       (meta.length ? '<dl class="p-meta">' + meta.map(function (m) { return "<div><dt>" + esc(m[0]) + "</dt><dd>" + S.inline(m[1]) + "</dd></div>"; }).join("") + "</dl>" : "") +
       "</div>" +
-      '<div class="p-blocks">' + (p.blocks || []).filter(function (b) { return b && !b.hidden; }).map(function (b) {
-        var fn = BLOCKS[b.type];
-        if (!fn) { console.warn("Unknown block type:", b.type); return ""; }
-        return fn(b, base);
-      }).join("") + "</div>";
+      '<div class="p-blocks">' + blocksHTML(p, base) + "</div>";
 
     if (pos > -1 && items.length > 1) {
       var next = items[(pos + 1) % items.length], prev = items[(pos - 1 + items.length) % items.length];
       html += '<nav class="p-next">' + pager(prev, "Previous") + pager(next, "Next") + "</nav>";
     }
+    var y = window.scrollY;
     main.innerHTML = html;
-    lightbox();
+    if (PREVIEW) { window.scrollTo(0, y); markSelected(); } else lightbox();
+  }
+
+  function startPreview(site, items) {
+    document.body.classList.add("is-preview");
+    var id = q.get("p"), pos = items.findIndex(function (it) { return it.kind === "project" && it.id === id; });
+    window.addEventListener("message", function (e) {
+      if (e.origin !== location.origin || !e.data) return;
+      if (e.data.type === "works-layout") render(site, e.data.project, S.projectBase(id), items, pos);
+      if (e.data.type === "works-layout-select") {
+        selected = e.data.index; markSelected();
+        var el = document.querySelector('[data-block="' + selected + '"]');
+        if (el && e.data.scroll) el.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    });
+    document.addEventListener("click", function (e) {
+      var a = e.target.closest("a"); if (a) e.preventDefault();
+      var el = e.target.closest("[data-block]");
+      if (el) { e.stopPropagation(); window.parent.postMessage({ type: "works-layout-pick", index: el.dataset.block }, location.origin); }
+    }, true);
+    window.parent.postMessage({ type: "works-layout-ready" }, location.origin);
   }
 
   function pager(it, label) {

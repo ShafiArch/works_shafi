@@ -244,7 +244,26 @@ button { font: inherit; color: inherit; }
 .p-meta dd { margin: 0; }
 @media (max-width: 860px) { .p-lede { grid-template-columns: 1fr; } }
 
-.p-blocks { display: flex; flex-direction: column; gap: clamp(40px, 7vh, 88px); }
+/* Blocks on a 12 column grid. Widths are fixed options (see project.js), and
+   the page adapts by itself: half screen and tablet widen narrow blocks,
+   phones stack everything. */
+.p-blocks { container: blocks / inline-size; }
+.p-row {
+  display: grid; grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: clamp(16px, 2.4vw, 40px); row-gap: clamp(28px, 5vh, 56px); align-items: start;
+  margin-top: var(--space, clamp(40px, 7vh, 88px));
+}
+.p-row:first-child { margin-top: 0; }
+.p-cell { grid-column: var(--cs, auto) / span var(--sp, 12); align-self: var(--va, start); min-width: 0; container-type: inline-size; }
+.p-cell > .w-wide, .p-cell > .w-text { width: 100%; }
+@container blocks (max-width: 1000px) {
+  .p-cell { grid-column: var(--cs-m, auto) / span var(--sp-m, 12); }
+}
+@container blocks (max-width: 620px) {
+  .p-cell { grid-column: 1 / -1; }
+  .p-row { row-gap: 28px; margin-top: min(var(--space, 48px), 56px); }
+  .p-row:first-child { margin-top: 0; }
+}
 .p-blocks figure { margin: 0; }
 .p-blocks figcaption, .blk-caption { margin: 10px 0 0; font-size: 13px; color: var(--ink-2); }
 .w-full { width: 100%; }
@@ -262,7 +281,24 @@ button { font: inherit; color: inherit; }
 .blk-links ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--rule); }
 .blk-links li a { display: block; padding: 12px 0; border-bottom: 1px solid var(--rule); }
 .blk-links li a:hover { color: var(--accent); }
-@media (max-width: 760px) { .blk-text, .blk-links { grid-template-columns: 1fr; } }
+/* heading beside the text only when the block is wide enough */
+@container (max-width: 640px) { .blk-text, .blk-links { grid-template-columns: 1fr; } }
+.blk-text.is-stacked { grid-template-columns: 1fr; gap: 14px; }
+.blk-text.is-large .prose { font-size: clamp(19px, 1.7vw, 24px); line-height: 1.5; }
+.blk-text.is-center { text-align: center; justify-items: center; }
+.blk-text.is-center .prose { margin: 0 auto; }
+
+/* project header options */
+.p-head.is-center { text-align: center; }
+.p-head.is-center .p-sub { margin-left: auto; margin-right: auto; }
+.p-lede.facts-below { grid-template-columns: minmax(0, 1fr); }
+.p-lede.facts-below .p-meta { grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 0 28px; max-width: 980px; }
+.p-lede.intro-large .p-intro { font-size: clamp(20px, 1.8vw, 26px); line-height: 1.45; max-width: 46ch; }
+
+/* in the layout editor's preview */
+.is-preview [data-block] { cursor: pointer; outline: 1px dashed transparent; outline-offset: 6px; transition: outline-color 0.15s; }
+.is-preview [data-block]:hover { outline-color: var(--accent); }
+.is-preview [data-block].is-selected { outline: 2px solid var(--accent); }
 .blk-quote { margin: 0 auto; max-width: 30ch; text-align: center; }
 .blk-quote p { font-family: var(--title-font); font-size: clamp(26px, 3vw, 40px); line-height: 1.2; margin: 0; }
 .blk-quote cite { display: block; margin-top: 14px; font-style: normal; font-size: 14px; color: var(--ink-2); }
