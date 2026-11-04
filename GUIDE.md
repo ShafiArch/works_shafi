@@ -1,4 +1,4 @@
-# Portfolio site guide
+# works_shafi: site guide
 
 Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no package manager. Every change is an edit to a text file followed by a commit.
 
@@ -114,7 +114,7 @@ Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--s
 
 ## 8. Publish and preview
 
-* **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/Portfolio_Architecture/ a minute or two after each commit.
+* **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
 * **Cache rule:** the pages load the scripts and styles with `?v=1`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle`, `autoplaySeconds` (0 turns autoplay off), `showIndex` (the list under the shelf), `nav`, `about`, `footer`.
