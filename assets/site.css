@@ -284,7 +284,11 @@ button { font: inherit; color: inherit; }
 /* heading beside the text only when the block is wide enough */
 @container (max-width: 640px) { .blk-text, .blk-links { grid-template-columns: 1fr; } }
 .blk-text.is-stacked { grid-template-columns: 1fr; gap: 14px; }
-.blk-text.is-large .prose { font-size: clamp(19px, 1.7vw, 24px); line-height: 1.5; }
+/* text sizes: fixed steps that scale gently with the screen, so small stays readable on phones and large never overflows */
+.blk-text.size-xsmall .prose { font-size: 13px; line-height: 1.55; }
+.blk-text.size-small .prose { font-size: 15px; line-height: 1.55; }
+.blk-text.size-large .prose { font-size: clamp(19px, 1.7vw, 24px); line-height: 1.5; }
+.blk-text.size-xlarge .prose { font-size: clamp(22px, 2.5vw, 34px); line-height: 1.35; letter-spacing: -0.01em; max-width: 40ch; }
 .blk-text.is-center { text-align: center; justify-items: center; }
 .blk-text.is-center .prose { margin: 0 auto; }
 
@@ -293,7 +297,10 @@ button { font: inherit; color: inherit; }
 .p-head.is-center .p-sub { margin-left: auto; margin-right: auto; }
 .p-lede.facts-below { grid-template-columns: minmax(0, 1fr); }
 .p-lede.facts-below .p-meta { grid-template-columns: repeat(auto-fill, minmax(min(220px, 100%), 1fr)); gap: 0 28px; max-width: 980px; }
+.p-lede.intro-xsmall .p-intro { font-size: 14px; }
+.p-lede.intro-small .p-intro { font-size: 16px; }
 .p-lede.intro-large .p-intro { font-size: clamp(20px, 1.8vw, 26px); line-height: 1.45; max-width: 46ch; }
+.p-lede.intro-xlarge .p-intro { font-size: clamp(24px, 2.6vw, 36px); line-height: 1.35; letter-spacing: -0.01em; max-width: 38ch; }
 
 /* in the layout editor's preview */
 .is-preview [data-block] { cursor: pointer; outline: 1px dashed transparent; outline-offset: 6px; transition: outline-color 0.15s; }

@@ -237,7 +237,7 @@
       '<h3 class="l-h3">Layout</h3>' +
       fld("Title position", seg("lh-header", [["left", "Left"], ["center", "Centred"]], l.header || "left")) +
       fld("Facts", seg("lh-facts", [["side", "Beside the introduction"], ["below", "Below it, in columns"]], l.facts || "side")) +
-      fld("Introduction size", seg("lh-intro", [["normal", "Normal"], ["large", "Large"]], l.intro || "normal")) +
+      fld("Introduction size", seg("lh-intro", [["xsmall", "Very small"], ["small", "Small"], ["normal", "Medium"], ["large", "Large"], ["xlarge", "Very large"]], l.intro || "normal")) +
       '<h3 class="l-h3">Text</h3>' +
       fld("Title", txt("title", p.title)) + fld("Description", txt("subtitle", p.subtitle)) +
       '<div class="m-grid2">' + fld("Category", txt("category", p.category)) + fld("Year", txt("year", p.year)) + "</div>" +
@@ -267,7 +267,7 @@
       (media ? fld("Image shape", seg("ll-ratio", [["original", "Original"], ["16/9", "16:9"], ["3/2", "3:2"], ["4/3", "4:3"], ["1/1", "Square"], ["3/4", "Portrait"]], l.ratio || "original"), "Other shapes crop the image; a click still opens the whole image.") +
         (l.ratio && l.ratio !== "original" ? fld("Keep in view", seg("ll-focus", [["center", "Centre"], ["top", "Top"], ["bottom", "Bottom"], ["left", "Left"], ["right", "Right"]], l.focus || "center")) : "") : "") +
       (b.type === "text" ? fld("Heading", seg("ll-text", [["side", "Beside the text"], ["stacked", "Above the text"]], l.text || "side"), "Beside only when the block is wide enough; otherwise above.") +
-        fld("Text size", seg("ll-size", [["normal", "Normal"], ["large", "Large"]], l.size || "normal")) +
+        fld("Text size", seg("ll-size", [["xsmall", "Very small"], ["small", "Small"], ["normal", "Medium"], ["large", "Large"], ["xlarge", "Very large"]], l.size || "normal"), "Sizes scale down gently on phones.") +
         fld("Alignment", seg("ll-textAlign", [["left", "Left"], ["center", "Centred"]], l.textAlign || "left")) : "") +
       '<h3 class="l-h3">Content</h3>' + contentFields(b);
   }

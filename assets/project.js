@@ -69,7 +69,7 @@
     },
     text: function (b) {
       var l = b.layout || {};
-      var cls = (l.text === "stacked" ? " is-stacked" : "") + (l.size === "large" ? " is-large" : "") + (l.textAlign === "center" ? " is-center" : "");
+      var cls = (l.text === "stacked" ? " is-stacked" : "") + (l.size && l.size !== "normal" ? " size-" + l.size : "") + (l.textAlign === "center" ? " is-center" : "");
       return '<section class="blk-text' + cls + '">' +
         (b.heading ? "<h2>" + esc(b.heading) + "</h2>" : "<span></span>") +
         '<div class="prose">' + S.md(b.body) + "</div></section>";
@@ -146,7 +146,7 @@
       '<h1 class="p-title">' + esc(p.title) + "</h1>" +
       (p.subtitle ? '<p class="p-sub">' + esc(p.subtitle) + "</p>" : "") +
       "</header>" +
-      '<div class="p-lede' + (pl.facts === "below" ? " facts-below" : "") + (pl.intro === "large" ? " intro-large" : "") + '" data-block="intro">' +
+      '<div class="p-lede' + (pl.facts === "below" ? " facts-below" : "") + (pl.intro && pl.intro !== "normal" ? " intro-" + pl.intro : "") + '" data-block="intro">' +
       '<div class="prose p-intro">' + S.md(p.intro) + "</div>" +
       (meta.length ? '<dl class="p-meta">' + meta.map(function (m) { return "<div><dt>" + esc(m[0]) + "</dt><dd>" + S.inline(m[1]) + "</dd></div>"; }).join("") + "</dl>" : "") +
       "</div>" +
