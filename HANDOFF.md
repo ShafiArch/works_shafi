@@ -1,0 +1,154 @@
+# Works_Shafi: project handoff
+
+A complete briefing for continuing this project in a fresh session (another Claude account, or any collaborator). Current as of 4 November 2026. Read this first, then `GUIDE.md` for the user-facing instructions.
+
+## 1. What this is
+
+- **Owner:** Shafiul Islam (goes by Shafi; GitHub `ShafiArch`), architectural and computational designer. Advanced Grasshopper user.
+- **Repository:** https://github.com/ShafiArch/works_shafi (public, branch `main`). Formerly named `Portfolio_Architecture`; renamed by the owner on 4 Nov 2026. Old links to `/Portfolio_Architecture/` no longer work.
+- **Live site:** https://shafiarch.github.io/works_shafi/ (GitHub Pages, deployed from the root of `main`).
+- **Tools (not linked from the site):**
+  - Site manager: https://shafiarch.github.io/works_shafi/manage.html
+  - Layout editor: https://shafiarch.github.io/works_shafi/layout.html
+- **Sister project:** https://github.com/ShafiArch/Grasshopper, live at https://shafiarch.github.io/Grasshopper/ (a library of 38 .gh definitions with animated line-drawing cards; it has its own `HANDOFF.md`). Its top bar "Portfolio" link points to `https://shafiarch.github.io/works_shafi/`. This site's visual language (Archivo, trace paper, ink lines, one orange live element) comes from it.
+- **Purpose:** a personal architecture portfolio. The front page is a bookshelf carousel: every work is a book spine; the active book turns to show a cover with a small animated line drawing. Each project has its own page built from content blocks.
+
+No build step, no framework, no package manager. Plain HTML, CSS and JavaScript.
+
+## 2. Starting a new session
+
+Paste something like this into the new chat:
+
+> Read HANDOFF.md and GUIDE.md in https://github.com/ShafiArch/works_shafi, then help me with: ...
+
+**Access.** For a Claude session to push, the Claude GitHub App must be installed on the ShafiArch account with access to `works_shafi` (https://github.com/apps/claude/installations/select_target) and GitHub must be connected in claude.ai settings. Without it, Claude can read the public repo but pushes fail with 403; the fallback is to hand the owner a zip of changed files to upload (Add file, Upload files, commit). Repository settings (rename, Pages settings, About box) cannot be changed from a Claude session even with push access; the owner does those on GitHub.
+
+**Commits** in previous sessions used the identity `ShafiArch <ShafiArch@users.noreply.github.com>` and were pushed straight to `main` (the owner asked for direct deploys after the first pull request).
+
+**Deploying.** Every push to `main` runs GitHub's "pages build and deployment" workflow (about 40 seconds). It has twice hung on the deploy step or sat queued for 10+ minutes. Fix: cancel the run, then push an empty commit (`git commit --allow-empty -m "Trigger Pages deploy"`). Check with `gh api repos/ShafiArch/works_shafi/actions/runs --jq '.workflow_runs[0] | "\(.head_sha[0:7]) \(.status) \(.conclusion)"'`.
+
+**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=13`) in `index.html`, `project.html`, `manage.html` and `layout.html`. Whenever any `.js` or `.css` changes, raise N in all four (and the number quoted in `GUIDE.md` section 10). JSON content is fetched with `no-cache` and needs nothing.
+
+**Testing locally.** `python3 -m http.server 8765` in the repo root (pages fetch JSON, so `file://` does not work). Previous sessions tested with Playwright (pre-installed in the Claude cloud workspace): screenshot the shelf, click through books, open the work list, check `document.documentElement.scrollWidth` equals the viewport width at 390 px (no sideways overflow), and drive the two tools end to end, including applying a downloaded zip to a copy of the repo. Google Fonts are blocked in that sandbox, so screenshots show fallback fonts.
+
+## 3. File map
+
+| Path | Role |
+|---|---|
+| `index.html` | Front page shell: header, shelf, work list, footer. |
+| `project.html` | Project page shell. `?p=<folder>` a project; `?e=<id>` a website entry shown inside the site; `?p=..&preview=1` preview mode for the layout editor. |
+| `manage.html` + `assets/manage.js`, `assets/manage.css` | Site manager (section 7). |
+| `layout.html` + `assets/layout.js`, `assets/layout.css` | Layout editor (section 7). Uses `manage.css` for shared controls. |
+| `assets/core.js` | `window.Site`: JSON loading, entry resolution (`loadSite` returns `{works, books}`), markdown-lite (`md`, `inline`), header and footer, header theme switch, typographic cover. |
+| `assets/shelf.js` | The bookshelf carousel, drawn covers, and the collapsible Work list. |
+| `assets/covers.js` | `window.Covers`: canvas line-drawing engine and the cover drawings (`ART`). |
+| `assets/project.js` | Project page: header, facts, 12 column block grid, block renderers, lightbox, preview mode. |
+| `assets/site.css` | All layout and motion; reads theme tokens only, never sets colours. |
+| `assets/zip.js` | `window.Zip.make(entries)`: minimal stored zip writer used by both tools. |
+| `themes/themes.js` | `window.SITE_THEMES`: default theme, theme list, `set()` to switch live. |
+| `themes/trace.css`, `night.css`, `clay.css` | Theme tokens. |
+| `content/site.json` | Site content: name, nav, works, carousel, settings. |
+| `projects/<folder>/project.json` | One project; its images sit beside it (`01.webp` ...), plus `cover.webp` (a photo crop, kept as a fallback cover). |
+| `projects/_template/project.json` | Example using every block type; not on the site. |
+| `tools/images.py` | Python: `web` exports PSD/TIF/PNG/JPG to WebP; `cover` makes a portrait cover crop. |
+| `_archive/` | Original portfolio cover page and three blank filler pages, kept out of the site. |
+| `GUIDE.md` | The owner's manual. Keep it in step with any change. |
+| `.nojekyll` | Keep it. |
+
+Projects on the site: `lego-city`, `space-under-flyover`, `natural-healing`, `sundar-bari`, `ida-interior` (pages are A3 landscape boards, 4961 x 3508 WebP), plus one website entry, `grasshopper-collection`.
+
+## 4. Data model
+
+### content/site.json
+
+```jsonc
+{
+  "name": "Shafiul Islam",
+  "repo": "ShafiArch/works_shafi",
+  "tagline": "...",
+  "shelfTitle": "Selected Work",        // not shown; screen readers only
+  "autoplaySeconds": 3.5,               // 0 = no autoplay
+  "showIndex": true,                    // the Work list button
+  "nav": [{ "label": "Work", "href": "index.html#index" }, { "label": "GitHub", "href": "https://..." }],
+  "works": [ ...entries, in work list order... ],
+  "carousel": [ ...entry ids, in shelf order... ],
+  "about": "footer text, markdown-lite",
+  "footer": "Shafiul Islam"
+}
+```
+
+- An entry left out of `carousel` shows in the work list only. `"hidden": true` hides it everywhere. Without `carousel`, every entry is a book. Older files used `shelf` instead of `works`; still accepted.
+- **Entry types and ids:** `{ "project": "lego-city" }` (id = folder); `{ "project": "https://.../folder/" }` (a project.json published elsewhere; id = the address); `{ "id", "type": "website" | "repository", "title", "subtitle", "category", "year", "url", "open": "tab" | "embed", "shelf": {...} }`. Fields on a project entry override the project.json (the site manager moves them into the project.json on save).
+- **Previous/next** on project pages follow `works` order.
+
+### projects/<folder>/project.json
+
+```json
+{
+  "title": "...", "subtitle": "...", "year": "2021", "category": "Competition",
+  "shelf": { "art": "lego", "cover": "cover.webp", "tone": "light", "spine": "", "coverText": "", "coverNote": "", "spineColor": "", "spineInk": "" },
+  "meta": [["Site", "Makoko, Lagos"], ["Team", "..."]],
+  "intro": "Paragraphs separated by a blank line. **bold**, *italic*, [label](https://...)",
+  "layout": { "header": "left|center", "facts": "side|below", "intro": "xsmall|small|normal|large|xlarge", "introAlign": "left|center|right|justify" },
+  "blocks": [
+    { "type": "image", "src": "01.webp", "caption": "", "alt": "", "layout": { ... } },
+    { "type": "gallery", "columns": 2, "items": [{ "src": "", "caption": "" }], "caption": "" },
+    { "type": "text", "heading": "", "body": "" },
+    { "type": "quote", "text": "", "by": "" },
+    { "type": "video", "src": "x.mp4" | "youtube": "id" | "vimeo": "id", "poster": "", "autoplay": false, "caption": "" },
+    { "type": "embed", "url": "https://...", "ratio": "16 / 10", "caption": "" },
+    { "type": "links", "heading": "", "items": [{ "label": "", "url": "" }] },
+    { "type": "spacer" }
+  ]
+}
+```
+
+- **Shelf fields:** `art` (drawn cover, takes priority) > `cover` (image) > typographic cover. `tone`: `light | mid | dark | accent | auto`. `coverNote` defaults to `subtitle` on drawn covers.
+- **Block `layout`** (all optional, fixed values only): `width` `full|wide|twothirds|half|third` (12/10/8/6/4 of 12 columns); `beside` true to sit next to the previous block when the spans fit in 12, otherwise it starts a new row; `align` `start|center|end` (the first block of a row positions the row); `valign` `start|center|end`; `space` `none|small|normal|large`; images and galleries: `ratio` `original|16/9|3/2|4/3|1/1|3/4` and `focus` `center|top|bottom|left|right`; text blocks: `text` `side|stacked`, `size` `xsmall|small|normal|large|xlarge`, `textAlign` `left|center|right|justify`. Any block may have `"hidden": true`. Legacy `width: "wide" | "text"` on media blocks maps to wide / twothirds.
+
+## 5. How the front end works
+
+- **Shelf (shelf.js + site.css).** Each book is an `<a class="book">` with a 3D `.book-3d` holding a spine face and a cover face (cover rotated 90 degrees on the spine's right edge). The active book rotates by `--open-angle` (64) about that hinge; JS computes the open width (`s*cos + c*sin`) and a shift, and translates the track so the active book is centred. Book size: `--book-h`, `--spine-ratio` (0.155), `--cover-ratio` (0.74). Spine titles shrink to fit. Autoplay with a progress line; pauses on hover; arrows, swipe, keyboard. The Work list is a collapsed button under the controls ("Work list 06"); `index.html#index` or the Work nav link opens it.
+- **Drawn covers (covers.js).** A small canvas engine copied in spirit from the Grasshopper `previews.js`: 3D points projected with an orbiting camera, ink lines plus items marked `c: "accent"` drawn in `--cover-accent`. Each drawing is sampled once (24 frames) to find its extent, then scaled to fit its box and anchored bottom left so motion never drifts. Only the open book animates. Drawings: `lego, flyover, healing, homestead, interior, graph` (made for the existing works) and `web, repo, tower, plan` (general). Add new ones to `ART` and to `ART_LABELS` in `manage.js`. Size knobs in site.css: `--cover-art-w` (0.46 of cover width) and `--cover-art-scale` (1).
+- **Cover layout:** bold title top left (Archivo 700, `--cover-w * 0.13`); drawing box bottom left; footer row with the description (three lines max, small) bottom left and the orange `Category · Year` tag bottom right. No author name on drawn covers.
+- **Project page (project.js).** Blocks are grouped into rows on a 12 column CSS grid inside `.p-blocks`, a size container. Responsive rules live only in site.css: under 1000 px container width, Third becomes Half and wider spans become Full; under 620 px everything is full width and stacked; a text block shows its heading beside the body only when its cell is over 640 px; justified text falls back to left in cells under 420 px and for the intro under 480 px. Clicking an image opens a lightbox; a second click shows full resolution.
+- **Themes.** `themes/themes.js` writes the active theme's stylesheet before paint (default `trace`; the visitor's choice is kept in `localStorage` `site-theme`; `?theme=night` forces one). The header switch (Trace / Night / Clay) calls `SITE_THEMES.set()`, which swaps the stylesheet and fires a `site-theme` event (the shelf re-measures and covers re-read colours). Tokens: `--bg --ink --ink-2 --rule --accent`, fonts (`--font-body --font-display --title-font --font-spine` and their weight/stretch/case), `--tone-{light,mid,dark,accent}-{bg,ink}`, `--cover-bg --cover-ink --cover-accent`, `--floor-shadow`, `--spine-shade`. Trace follows the visitor's dark mode (graphite).
+
+## 6. Design decisions (do not undo by accident)
+
+These came from the owner's direct feedback, in roughly this order:
+
+- **Writing:** never use em dashes or en dashes (organisation rule); use commas, semicolons, parentheses or periods. Applies to code comments, docs and site text. The tools warn about dashes and offer a fix.
+- **Bookshelf carousel** modelled on a "Favorite books" reference video: spines in a row, one book turned open to show its cover.
+- **One typeface, Archivo,** in every theme, everywhere (titles, spines, captions). The owner removed the serif headings ("the fonts of the carousel are perfect").
+- **Trace is the default theme.** Its accent is burnt orange `#c4512f` (the owner disliked the earlier blueprint blue). **Night has no orange** at all (the owner asked to remove it); its accent is white and the cover tag grey. Clay keeps its brick accent.
+- **No orange spine:** Lego City's spine is light; the shelf uses the neutral tones only.
+- **Spine shading** is a flat face with a thin darker strip at each edge (a "small fillet"), not a rounded cylinder.
+- **No "Selected Work" heading** above the shelf.
+- **Work list** is a small collapsed button with small readable text, not a full index.
+- **Covers:** small animated line drawings like the Grasshopper cards instead of full photographs; drawing roughly half size, bottom left, sitting directly on the description; description three lines max in small text; orange category and year bottom right; no author name.
+- **Tools save nothing remotely:** both tools work in the browser and hand back a zip with repository paths; the owner uploads and commits. Drafts live in `localStorage` (`works-manager-draft-v1`, `works-layout-draft-v1`). Images added in the site manager live only in that tab until downloaded.
+- **Layout safety:** layout options are fixed choices on a 12 column grid; screen-size behaviour is decided by CSS, never by content.
+
+## 7. The tools
+
+**Site manager (manage.js).** Loads `content/site.json` and every local project.json; tabs: Works (placement select per row: book and list / list only / hidden; drag or arrows; edit; remove with confirm), Shelf order (carousel ids), Top bar, Site settings, Download (checks, changed-file table, zip). The editor drawer changes with the type (project, website, repository with "Fill from GitHub" via the public API, remote project with a project.json check). Project images are converted to WebP in the browser (canvas, max edge 2400/3200/4000) and image covers are cropped at 900 x 1216 like `tools/images.py`. Existing folder images are listed with the GitHub contents API using `site.json` `repo`. Live cover preview uses the site's own CSS and `Covers`. Removing a published project leaves its folder; the Download tab lists folders to delete by hand.
+
+**Layout editor (layout.js).** Loads local projects; the right pane is an iframe of `project.html?p=<folder>&preview=1` sized to a real device (Desktop 1440x900, Laptop 1280x800, Half screen 960x1000, Tablet landscape 1180x820, Tablet portrait 820x1180, Phone landscape 844x390, Phone 390x844) and scaled to fit. Messages (same origin only): editor to page `works-layout` (the draft project) and `works-layout-select` (highlight); page to editor `works-layout-ready` and `works-layout-pick` (a click on a block or the header). The side panel lists the header and blocks (drag to reorder, add after selection, duplicate, hide, delete) and an inspector with layout choices and text fields. Undo and redo keep up to 200 steps per project; typing in one field is one step. Download gives `projects/<folder>/project.json` for each changed project in a zip.
+
+## 8. Open items
+
+- Years are blank for Space Under Flyover, Natural Healing and Sundar Bari.
+- The footer "about" text is a placeholder taken from the Grasshopper contributor line; the owner has not written a bio.
+- The repository About box on GitHub has no description or website yet (owner's job).
+- A custom domain was discussed but not set up.
+- The IDA Interior drawing is the busiest of the covers; the owner accepted it but it could be simplified.
+- New projects added through the site manager get a general drawing (`tower`, `plan`, `web`, `repo`); a bespoke drawing needs code in `covers.js`.
+
+## 9. History in brief
+
+1. Repo started as loose A3 portfolio pages (WebP) at the root. They were moved into `projects/<folder>/`, covers were cropped, and the site was built and merged in pull request #1.
+2. Repo renamed to `works_shafi`; README, GUIDE and the Grasshopper site's Portfolio link updated.
+3. Visual changes per section 6; drawn covers added and refined over several rounds.
+4. Site manager added; `site.json` moved to `works` + `carousel`.
+5. Layout editor and the 12 column project grid added; then five text sizes and four paragraph alignments.
