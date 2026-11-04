@@ -1,4 +1,4 @@
-# works_shafi
+# Works_Shafi
 
 Personal website of Shafiul Islam: architecture, visualization and computational design.
 

@@ -1,4 +1,4 @@
-# works_shafi: site guide
+# Works_Shafi: site guide
 
 Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no package manager. Every change is an edit to a text file followed by a commit.
 
