@@ -6,6 +6,7 @@
   --book-h: clamp(220px, min(48vh, 52vw), 440px);
   --spine-ratio: 0.155;
   --cover-ratio: 0.74;
+  --cover-art-scale: 0.5;   /* size of the drawing on a book cover, 1 = fills the space */
   --open-angle: 64;          /* how far the open book turns toward you, degrees */
   --spine-w: calc(var(--book-h) * var(--spine-ratio));
   --cover-w: calc(var(--book-h) * var(--cover-ratio));
@@ -146,7 +147,7 @@ button { font: inherit; color: inherit; }
 }
 .ac-title {
   font-family: var(--cover-font, var(--font-body)); font-weight: 700;
-  font-size: calc(var(--cover-w) * 0.115); line-height: 0.95; letter-spacing: -0.03em;
+  font-size: calc(var(--cover-w) * 0.13); line-height: 0.92; letter-spacing: -0.035em;
 }
 .ac-canvas { flex: 1 1 0; width: 100%; min-height: 0; display: block; margin: 6px 0; }
 .ac-foot { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: calc(var(--cover-w) * 0.042); }

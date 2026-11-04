@@ -239,6 +239,7 @@
     var cs = getComputedStyle(this.canvas);
     this.ink = cs.getPropertyValue("--cover-ink").trim() || "#111";
     this.accent = cs.getPropertyValue("--cover-accent").trim() || "#c4512f";
+    this.size = parseFloat(cs.getPropertyValue("--cover-art-scale")) || 0.5;
   };
   Sketch.prototype.resize = function () {
     // offset sizes ignore the 3D turn of the book, so a closed book still measures true
@@ -251,8 +252,8 @@
     var t = (now - this.t0) / 1000 + this.phase, v = Object.assign({}, DEF, this.gen.view);
     var res = this.gen.step(t, this.state), items = res, extra = 0;
     if (res && !Array.isArray(res)) { items = res.items; extra = res.az || 0; }
-    var w = this.w, h = this.h, ctx = this.ctx, zoom = Math.min(w, h) * v.zoom;
-    var az = v.az + v.spin * t + extra, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el), cx = w / 2, cy = h * v.yc;
+    var w = this.w, h = this.h, ctx = this.ctx, zoom = Math.min(w, h) * v.zoom * this.size;
+    var az = v.az + v.spin * t + extra, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el), cx = w / 2, cy = h * (0.5 + (v.yc - 0.5) * this.size);
     function pr(p) { var x1 = p[0] * ca - p[1] * sa, y1 = p[0] * sa + p[1] * ca; return [cx + x1 * zoom, cy - (p[2] * ce + y1 * se) * zoom]; }
     ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     ctx.clearRect(0, 0, w, h);
