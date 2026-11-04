@@ -18,7 +18,8 @@ Plain HTML, CSS and JavaScript on GitHub Pages. No build step, no framework, no 
 | `assets/covers.js` | The drawn book covers: small line animations, one per project, plus general ones for new entries. |
 | `assets/manage.js`, `assets/manage.css` | The site manager. |
 | `layout.html`, `assets/layout.js`, `assets/layout.css` | The layout editor for project pages. Not linked from the site. |
-| `assets/zip.js` | Builds the download zips for both tools. |
+| `covers.html`, `assets/covers-editor.js`, `assets/covers-editor.css` | The cover animation editor. Not linked from the site. |
+| `assets/zip.js` | Builds the download zips for the tools. |
 | `tools/images.py` | Exports PSD, TIF, PNG or JPG to WebP, and makes book covers. |
 | `_archive/` | The old portfolio cover and blank filler pages, kept out of the site. |
 | `.nojekyll` | Tells GitHub Pages to serve files as they are. Keep it. |
@@ -62,7 +63,20 @@ Open **https://shafiarch.github.io/works_shafi/layout.html** (or press *Layout* 
 
 In `project.json` the layout is stored as a `layout` object on each block, for example `"layout": { "width": "half", "beside": true, "ratio": "4/3" }`, and page options as `"layout": { "header": "center", "facts": "below" }` at the top level.
 
-## 4. Add a project by hand
+## 4. The cover animation editor
+
+Open **https://shafiarch.github.io/works_shafi/covers.html**. It shows every book cover on the shelf, animating as on the site, plus a large view of the selected one. The theme buttons at the top let you check each theme.
+
+* **All books** (the first item on the left) sets the default for every cover.
+* **One book:** click its cover or its name. Changing a value gives that book its own setting (marked *own*); the arrow beside a value returns it to the default; *Use the defaults* clears all of that book's own settings.
+* **Drawing:** *Size* (40 to 200 percent of the normal drawing box), *Move left or right* and *Move up or down* (in percent of the cover width; the cover clips anything pushed past its edge), *Speed* (0 holds a still frame, 100 is normal, up to 300).
+* **Lines (ink)** and **Accent (orange)**, each on its own: *Thickness* (20 to 400 percent) and *Opacity* (0 is invisible, 100 is solid).
+* Because the cover always keeps the same proportions, these settings look the same at every screen size.
+* Undo and redo, *Revert all*, and *Download*, which gives `content/site.json` in a zip. Upload the `content` folder and commit. Only the `covers` part of the file changes, so if the site manager has unsaved changes, download and upload those first, then reopen this tool.
+
+In `content/site.json` the settings look like `"covers": { "default": { "ink": { "weight": 1.2 } }, "books": { "lego-city": { "size": 1.3, "y": -10, "accent": { "opacity": 0.6 } } } }`.
+
+## 5. Add a project by hand
 
 1. Make a folder in `projects/`, lowercase with hyphens, for example `projects/seattle-library/`.
 2. Put the images in it (see section 6 for exporting from Photoshop). Simple names are easiest: `01.webp`, `02.webp`.
@@ -71,7 +85,7 @@ In `project.json` the layout is stored as a `layout` object on each block, for e
 5. Add one line to the `works` list in `content/site.json`, where you want it in the work list, and add the folder name to the `carousel` list where you want the book on the shelf:
    `{ "project": "seattle-library" },`
 
-## 5. Remove, hide or reorder
+## 6. Remove, hide or reorder
 
 * **Reorder:** the order of `works` in `content/site.json` is the work list order (and the previous / next links on project pages). The order of `carousel` is the shelf order.
 * **Work list only:** leave the entry out of `carousel`.
@@ -79,7 +93,7 @@ In `project.json` the layout is stored as a `layout` object on each block, for e
 * **Remove for good:** delete the line, then delete the folder if you no longer want the files.
 * A line that points to a missing folder is skipped quietly, so the site never breaks.
 
-## 6. Change what is inside a project
+## 7. Change what is inside a project
 
 Everything below the introduction is the `blocks` list in that project's `project.json`, drawn top to bottom. Add, delete or move blocks freely. Any block can take `"hidden": true`.
 
@@ -109,7 +123,7 @@ The `shelf` part of `project.json` controls the book:
 | `spineColor`, `spineInk` | A fixed spine color for this one book (any CSS color), overriding the theme. |
 | `coverText`, `coverNote` | Text for a typographic cover. |
 
-## 7. Put another website or repository on the shelf
+## 8. Put another website or repository on the shelf
 
 An entry in `works` does not have to be a project folder. Give it an `id` (used in `carousel`) and a `type` (`website` or `repository`):
 
@@ -130,7 +144,7 @@ An entry in `works` does not have to be a project folder. Give it an `id` (used 
 * For a cover image, put the file in `content/` and set `"cover": "grasshopper.webp"` inside `shelf`.
 * **A project kept in another repository:** if that repository publishes a folder with a `project.json` on GitHub Pages, use its address as the project: `{ "project": "https://shafiarch.github.io/Another_Repo/my-project/" }`. Images are read from that folder, and it opens on the portfolio's own project page.
 
-## 8. Images from Photoshop
+## 9. Images from Photoshop
 
 The web wants WebP or JPG, not PSD. Either export from Photoshop (File, Export, Export As, WebP or JPG, about 3000 to 4000 px on the long edge), or let the tool do it:
 
@@ -144,7 +158,7 @@ python tools/images.py cover projects/seattle-library/01.webp --focus 0.6 0.5 --
 * `cover` crops a portrait cover. `--focus X Y` is the point to centre on (0 to 1 across and down), `--zoom` moves closer. It writes `cover.webp` next to the image.
 * Clicking any image on a project page opens it full screen; clicking again shows it at full resolution, so presentation boards stay readable.
 
-## 9. Themes
+## 10. Themes
 
 Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink`, `--ink-2`, `--rule`, `--accent`, the typefaces, and `--tone-*-bg` / `--tone-*-ink` for the four spine tones). All three use Archivo throughout. Included:
 
@@ -160,13 +174,13 @@ Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink
 
 Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--spine-ratio`, `--cover-ratio`, `--open-angle`. A theme can override any of them in its own `:root`.
 
-## 10. Publish and preview
+## 11. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=13`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=14`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
 * **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the Work list button under the shelf), `nav`, `about`, `footer`.
 
-## 11. Writing
+## 12. Writing
 
 No em dashes or en dashes anywhere; use commas, semicolons, parentheses or periods.

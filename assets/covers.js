@@ -316,11 +316,23 @@
   var DEF = { az: -0.65, el: 0.5, spin: 0.08, zoom: 0.4, yc: 0.55 };
   var sketches = [], raf = null;
 
-  function Sketch(canvas, type, i) {
+  /* Style for one drawing, from the cover animation editor (covers.html):
+     speed (1 = normal, 0 = still), and per ink a weight (line thickness) and an
+     opacity, both 1 = as drawn. Size and position are set on the canvas in CSS. */
+  var STYLE = { speed: 1, ink: { weight: 1, opacity: 1 }, accent: { weight: 1, opacity: 1 } };
+  function styleOf(st) {
+    st = st || {};
+    function ink(k) { var o = st[k] || {}; return { weight: num(o.weight, 1, 0.2, 4), opacity: num(o.opacity, 1, 0, 1) }; }
+    return { speed: num(st.speed, 1, 0, 4), ink: ink("ink"), accent: ink("accent") };
+  }
+  function num(v, d, lo, hi) { v = parseFloat(v); return isNaN(v) ? d : clamp(v, lo, hi); }
+
+  function Sketch(canvas, type, i, style) {
     this.canvas = canvas; this.ctx = canvas.getContext("2d");
     this.gen = ART[type] || ART.graph; this.state = {};
     if (this.gen.init) this.gen.init(this.state);
     this.phase = i * 1.7; this.t0 = performance.now(); this.active = false;
+    this.style = styleOf(style); this.clock = this.phase; this.last = null;
     this.readColors(); this.resize();
   }
   Sketch.prototype.readColors = function () {
@@ -361,7 +373,10 @@
     this.minX = minX; this.maxY = maxY; this.spanX = maxX - minX || 1; this.spanY = maxY - minY || 1;
   };
   Sketch.prototype.draw = function (now) {
-    var t = (now - this.t0) / 1000 + this.phase, f = this.frameItems(t), items = f.items, v = f.v;
+    // time runs at the drawing's own speed and never jumps when the speed changes
+    if (this.last != null) this.clock += Math.min(0.1, (now - this.last) / 1000) * this.style.speed;
+    this.last = now;
+    var t = this.clock, f = this.frameItems(t), items = f.items, v = f.v, sty = this.style;
     if (this.minX === undefined) this.measure();
     var w = this.w, h = this.h, ctx = this.ctx, pad = 3;
     // fit the whole motion inside the box, then anchor it bottom left
@@ -374,15 +389,17 @@
     var scale = clamp(w / 260, 0.8, 1.6);
     for (var i = 0; i < items.length; i++) {
       var it = items[i], col = it.c === "accent" ? this.accent : this.ink;
-      ctx.globalAlpha = it.a === undefined ? 0.92 : it.a;
+      var ink = it.c === "accent" ? sty.accent : sty.ink;
+      ctx.globalAlpha = (it.a === undefined ? 0.92 : it.a) * ink.opacity;
+      if (!ctx.globalAlpha) continue;
       if (it.kind === "dot") {
-        var q = pr(it.p); ctx.beginPath(); ctx.arc(q[0], q[1], (it.r || 2) * scale, 0, TAU); ctx.fillStyle = col; ctx.fill(); continue;
+        var q = pr(it.p); ctx.beginPath(); ctx.arc(q[0], q[1], (it.r || 2) * scale * Math.sqrt(ink.weight), 0, TAU); ctx.fillStyle = col; ctx.fill(); continue;
       }
       var pts = it.pts; if (!pts || pts.length < 2) continue;
       ctx.beginPath(); var p0 = pr(pts[0]); ctx.moveTo(p0[0], p0[1]);
       for (var k = 1; k < pts.length; k++) { var pk = pr(pts[k]); ctx.lineTo(pk[0], pk[1]); }
       if (it.closed) ctx.closePath();
-      ctx.strokeStyle = col; ctx.lineWidth = (it.w || 1) * scale;
+      ctx.strokeStyle = col; ctx.lineWidth = (it.w || 1) * scale * ink.weight;
       if (it.dash) { ctx.setLineDash(it.dash.map(function (d) { return d * zoom; })); ctx.lineDashOffset = (it.dashOff || 0) * zoom; } else ctx.setLineDash([]);
       ctx.stroke();
     }
@@ -401,11 +418,17 @@
   window.Covers = {
     has: function (type) { return !!ART[type]; },
     list: function () { return Object.keys(ART); },
+    /* change a mounted drawing's style live */
+    setStyle: function (canvas, style) {
+      sketches.forEach(function (s) { if (s.canvas === canvas) { s.style = styleOf(style); s.resize(); s.draw(performance.now()); } });
+      kick();
+    },
+    styleOf: styleOf,
     unmount: function (canvas) { sketches = sketches.filter(function (s) { return s.canvas !== canvas; }); },
     /* animate several at once (used by the site manager preview) */
     activate: function (canvas) { sketches.forEach(function (s) { if (s.canvas === canvas) s.active = true; }); kick(); },
-    mount: function (canvas, type, i) {
-      var s = new Sketch(canvas, type, i || 0);
+    mount: function (canvas, type, i, style) {
+      var s = new Sketch(canvas, type, i || 0, style);
       sketches.push(s); s.draw(performance.now());
       return s;
     },

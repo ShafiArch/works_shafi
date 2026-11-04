@@ -1,0 +1,26 @@
+/* Cover animation editor. Builds on manage.css and layout.css. */
+.c-themes button { padding: 5px 10px; }
+.c-stage { overflow: auto; padding: 24px; background: color-mix(in srgb, var(--ink) 5%, var(--bg)); }
+.c-hint { font-size: 12px; color: var(--ink-2); margin: 0 0 18px; max-width: 70ch; }
+.c-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 28px 24px; align-items: start; }
+.c-card { --cover-w: 230px; display: block; text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
+.c-card.is-big { --cover-w: 340px; grid-column: 1 / -1; display: flex; gap: 28px; align-items: flex-start; cursor: default; }
+.c-book { position: relative; display: block; width: var(--cover-w); height: calc(var(--cover-w) / 0.74); background: var(--cover-bg); color: var(--cover-ink); overflow: hidden; box-shadow: 0 0 0 1px var(--rule), 0 14px 30px rgba(0, 0, 0, 0.12); border-radius: 2px; }
+.c-card:not(.is-big):hover .c-book { box-shadow: 0 0 0 1px var(--ink-2), 0 14px 30px rgba(0, 0, 0, 0.14); }
+.c-card.is-sel .c-book { box-shadow: 0 0 0 2px var(--accent), 0 14px 30px rgba(0, 0, 0, 0.14); }
+.c-name { display: block; margin-top: 8px; font-size: 13px; font-weight: 600; }
+.c-sub { display: block; font-size: 11px; color: var(--ink-2); }
+.c-big-info { max-width: 34ch; font-size: 13px; color: var(--ink-2); }
+.c-big-info strong { display: block; font-size: 18px; color: var(--ink); margin-bottom: 6px; }
+.c-own { font-size: 10px; color: var(--accent); font-weight: 600; margin-left: 6px; }
+
+.c-slider { display: grid; grid-template-columns: 1fr 64px 28px; gap: 8px; align-items: center; }
+.c-slider input[type="range"] { width: 100%; accent-color: var(--accent); }
+.c-slider input[type="number"] { width: 100%; font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.c-field { margin-bottom: 14px; }
+.c-field .m-label { display: flex; justify-content: space-between; }
+.c-field.is-own .m-label::after { content: "own"; color: var(--accent); font-weight: 600; font-size: 10px; letter-spacing: 0.04em; }
+.c-reset { width: 28px; height: 28px; border: 1px solid var(--rule); border-radius: 6px; background: var(--bg); color: var(--ink-2); cursor: pointer; padding: 0; }
+.c-reset:disabled { opacity: 0.25; cursor: default; }
+.c-reset:not(:disabled):hover { color: var(--accent); border-color: var(--accent); }
+.c-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; box-shadow: 0 0 0 1px var(--ink-2); }

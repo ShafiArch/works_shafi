@@ -10,6 +10,7 @@ A complete briefing for continuing this project in a fresh session (another Clau
 - **Tools (not linked from the site):**
   - Site manager: https://shafiarch.github.io/works_shafi/manage.html
   - Layout editor: https://shafiarch.github.io/works_shafi/layout.html
+  - Cover animation editor: https://shafiarch.github.io/works_shafi/covers.html
 - **Sister project:** https://github.com/ShafiArch/Grasshopper, live at https://shafiarch.github.io/Grasshopper/ (a library of 38 .gh definitions with animated line-drawing cards; it has its own `HANDOFF.md`). Its top bar "Portfolio" link points to `https://shafiarch.github.io/works_shafi/`. This site's visual language (Archivo, trace paper, ink lines, one orange live element) comes from it.
 - **Purpose:** a personal architecture portfolio. The front page is a bookshelf carousel: every work is a book spine; the active book turns to show a cover with a small animated line drawing. Each project has its own page built from content blocks.
 
@@ -27,7 +28,7 @@ Paste something like this into the new chat:
 
 **Deploying.** Every push to `main` runs GitHub's "pages build and deployment" workflow (about 40 seconds). It has twice hung on the deploy step or sat queued for 10+ minutes. Fix: cancel the run, then push an empty commit (`git commit --allow-empty -m "Trigger Pages deploy"`). Check with `gh api repos/ShafiArch/works_shafi/actions/runs --jq '.workflow_runs[0] | "\(.head_sha[0:7]) \(.status) \(.conclusion)"'`.
 
-**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=13`) in `index.html`, `project.html`, `manage.html` and `layout.html`. Whenever any `.js` or `.css` changes, raise N in all four (and the number quoted in `GUIDE.md` section 10). JSON content is fetched with `no-cache` and needs nothing.
+**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=14`) in `index.html`, `project.html`, `manage.html`, `layout.html` and `covers.html`. Whenever any `.js` or `.css` changes, raise N in all five (and the number quoted in the Publish section of `GUIDE.md`). JSON content is fetched with `no-cache` and needs nothing.
 
 **Testing locally.** `python3 -m http.server 8765` in the repo root (pages fetch JSON, so `file://` does not work). Previous sessions tested with Playwright (pre-installed in the Claude cloud workspace): screenshot the shelf, click through books, open the work list, check `document.documentElement.scrollWidth` equals the viewport width at 390 px (no sideways overflow), and drive the two tools end to end, including applying a downloaded zip to a copy of the repo. Google Fonts are blocked in that sandbox, so screenshots show fallback fonts.
 
@@ -39,7 +40,8 @@ Paste something like this into the new chat:
 | `project.html` | Project page shell. `?p=<folder>` a project; `?e=<id>` a website entry shown inside the site; `?p=..&preview=1` preview mode for the layout editor. |
 | `manage.html` + `assets/manage.js`, `assets/manage.css` | Site manager (section 7). |
 | `layout.html` + `assets/layout.js`, `assets/layout.css` | Layout editor (section 7). Uses `manage.css` for shared controls. |
-| `assets/core.js` | `window.Site`: JSON loading, entry resolution (`loadSite` returns `{works, books}`), markdown-lite (`md`, `inline`), header and footer, header theme switch, typographic cover. |
+| `covers.html` + `assets/covers-editor.js`, `assets/covers-editor.css` | Cover animation editor (section 7). Uses `manage.css` and `layout.css`. |
+| `assets/core.js` | `window.Site`: JSON loading, entry resolution (`loadSite` returns `{works, books}`), markdown-lite (`md`, `inline`), header and footer, header theme switch, typographic cover, `coverStyle(site, id)` and `applyCoverBox(canvas, style)` for the cover animation settings. |
 | `assets/shelf.js` | The bookshelf carousel, drawn covers, and the collapsible Work list. |
 | `assets/covers.js` | `window.Covers`: canvas line-drawing engine and the cover drawings (`ART`). |
 | `assets/project.js` | Project page: header, facts, 12 column block grid, block renderers, lightbox, preview mode. |
@@ -73,13 +75,18 @@ Projects on the site: `lego-city`, `space-under-flyover`, `natural-healing`, `su
   "works": [ ...entries, in work list order... ],
   "carousel": [ ...entry ids, in shelf order... ],
   "about": "footer text, markdown-lite",
-  "footer": "Shafiul Islam"
+  "footer": "Shafiul Islam",
+  "covers": {                           // cover animation editor; all optional
+    "default": { "size": 1, "x": 0, "y": 0, "speed": 1, "ink": { "weight": 1, "opacity": 1 }, "accent": { "weight": 1, "opacity": 1 } },
+    "books": { "<entry id>": { ...same keys, override the default... } }
+  }
 }
 ```
 
 - An entry left out of `carousel` shows in the work list only. `"hidden": true` hides it everywhere. Without `carousel`, every entry is a book. Older files used `shelf` instead of `works`; still accepted.
 - **Entry types and ids:** `{ "project": "lego-city" }` (id = folder); `{ "project": "https://.../folder/" }` (a project.json published elsewhere; id = the address); `{ "id", "type": "website" | "repository", "title", "subtitle", "category", "year", "url", "open": "tab" | "embed", "shelf": {...} }`. Fields on a project entry override the project.json (the site manager moves them into the project.json on save).
 - **Previous/next** on project pages follow `works` order.
+- **covers:** `size` scales the drawing box (0.4 to 2), `x` and `y` move it in percent of the cover width (x -45 to 45, y -60 to 20; the cover clips overflow), `speed` 0 to 4 (0 = still), per ink `weight` 0.2 to 4 and `opacity` 0 to 1. Size and offset are CSS variables on the canvas (`--art-size`, `--art-x`, `--art-y`); speed and inks go to `Covers.mount(canvas, art, i, style)` / `Covers.setStyle`. Time is accumulated per drawing, so a speed change never jumps.
 
 ### projects/<folder>/project.json
 
@@ -136,6 +143,8 @@ These came from the owner's direct feedback, in roughly this order:
 
 **Layout editor (layout.js).** Loads local projects; the right pane is an iframe of `project.html?p=<folder>&preview=1` sized to a real device (Desktop 1440x900, Laptop 1280x800, Half screen 960x1000, Tablet landscape 1180x820, Tablet portrait 820x1180, Phone landscape 844x390, Phone 390x844) and scaled to fit. Messages (same origin only): editor to page `works-layout` (the draft project) and `works-layout-select` (highlight); page to editor `works-layout-ready` and `works-layout-pick` (a click on a block or the header). The side panel lists the header and blocks (drag to reorder, add after selection, duplicate, hide, delete) and an inspector with layout choices and text fields. Undo and redo keep up to 200 steps per project; typing in one field is one step. Download gives `projects/<folder>/project.json` for each changed project in a zip.
 
+**Cover animation editor (covers-editor.js).** Loads `site.json` and the books on the shelf that have a drawing; shows every cover live (all animating) plus a large view of the selected one, with Trace / Night / Clay buttons. Left: *All books* (edits `covers.default`) and each book (edits `covers.books[id]`; a value set there is an override, the arrow removes it). Sliders with number boxes for size, left/right, up/down, speed, and thickness and opacity for each ink. Undo/redo, revert, download of `content/site.json` (only `covers` differs). Draft key `works-covers-draft-v1`. Because it rewrites the whole site.json from the published copy, unsaved site manager changes must be uploaded first.
+
 ## 8. Open items
 
 - Years are blank for Space Under Flyover, Natural Healing and Sundar Bari.
@@ -152,3 +161,4 @@ These came from the owner's direct feedback, in roughly this order:
 3. Visual changes per section 6; drawn covers added and refined over several rounds.
 4. Site manager added; `site.json` moved to `works` + `carousel`.
 5. Layout editor and the 12 column project grid added; then five text sizes and four paragraph alignments.
+6. Cover animation editor added (size, position, speed, and thickness and opacity per ink, as defaults plus per-book overrides).

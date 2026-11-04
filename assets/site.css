@@ -152,8 +152,11 @@ button { font: inherit; color: inherit; }
 }
 /* the drawing sits bottom left, sized to the description beneath it */
 .ac-canvas {
-  display: block; margin-top: auto;
-  width: calc(var(--cover-w) * var(--cover-art-w)); height: calc(var(--cover-w) * var(--cover-art-w) * 0.95);
+  display: block; margin-top: auto; flex: none;
+  /* size and offset come from the cover animation editor; the cover clips anything outside */
+  width: min(100%, calc(var(--cover-w) * var(--cover-art-w) * var(--art-size, 1)));
+  height: min(calc(var(--cover-w) * var(--cover-art-w) * var(--art-size, 1) * 0.95), calc(var(--cover-w) * 0.8));
+  transform: translate(calc(var(--cover-w) * var(--art-x, 0) / 100), calc(var(--cover-w) * var(--art-y, 0) / 100));
 }
 .ac-foot {
   display: flex; justify-content: space-between; align-items: flex-end; align-items: last baseline; gap: 10px;

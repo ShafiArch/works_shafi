@@ -10,7 +10,7 @@
 .m-brand { display: flex; align-items: baseline; gap: 12px; margin-right: auto; }
 .m-brand a { font-weight: 600; }
 .m-brand span { color: var(--ink-2); }
-.m-brand .m-switch { font-size: 12px; color: var(--ink-2); border-bottom: 1px solid var(--rule); }
+.m-brand .m-switch { font-size: 12px; margin-left: 2px; color: var(--ink-2); border-bottom: 1px solid var(--rule); }
 .m-brand .m-switch:hover { color: var(--accent); }
 .m-status { font-size: 13px; color: var(--ink-2); }
 .m-status.has-changes { color: var(--accent); font-weight: 600; }

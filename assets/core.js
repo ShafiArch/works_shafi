@@ -152,6 +152,25 @@
     top.appendChild(box);
   }
 
+  /* Cover animation settings live in site.json "covers": { "default": {...},
+     "books": { "<id>": {...} } }. A book's own values override the default.
+     Values: size (1 = normal box), x and y (offset, % of cover width),
+     speed, ink { weight, opacity }, accent { weight, opacity }. */
+  function coverStyle(site, id) {
+    var c = site.covers || {}, d = c["default"] || {}, b = (c.books || {})[id] || {};
+    return {
+      size: pick(b.size, d.size), x: pick(b.x, d.x), y: pick(b.y, d.y), speed: pick(b.speed, d.speed),
+      ink: Object.assign({}, d.ink || {}, b.ink || {}), accent: Object.assign({}, d.accent || {}, b.accent || {})
+    };
+  }
+  function pick(a, b) { return a !== undefined ? a : b; }
+  function applyCoverBox(canvas, cs) {
+    function lim(v, lo, hi, dflt) { v = parseFloat(v); return isNaN(v) ? dflt : Math.min(hi, Math.max(lo, v)); }
+    canvas.style.setProperty("--art-size", lim(cs.size, 0.4, 2, 1));
+    canvas.style.setProperty("--art-x", lim(cs.x, -45, 45, 0));
+    canvas.style.setProperty("--art-y", lim(cs.y, -60, 20, 0));
+  }
+
   /* Typographic cover for entries without an image. */
   function typeCover(item, site) {
     var s = item.shelf || {};
@@ -164,6 +183,6 @@
   window.Site = {
     getJSON: getJSON, loadShelf: loadShelf, loadSite: loadSite, entryId: entryId, slugify: slugify, resolveEntry: resolveEntry, projectBase: projectBase,
     abs: abs, esc: esc, md: md, inline: inline, pad: pad, renderChrome: renderChrome,
-    typeCover: typeCover, linkAttrs: linkAttrs, isURL: isURL
+    typeCover: typeCover, coverStyle: coverStyle, applyCoverBox: applyCoverBox, linkAttrs: linkAttrs, isURL: isURL
   };
 })();

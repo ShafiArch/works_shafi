@@ -73,7 +73,11 @@
     var bar = root.querySelector("[data-progress]");
     var canvases = books.map(function (b, i) {
       var c = b.querySelector(".ac-canvas");
-      if (c && window.Covers) window.Covers.mount(c, c.dataset.art, i);
+      if (c && window.Covers) {
+        var cs = S.coverStyle(site, items[i].id);
+        S.applyCoverBox(c, cs);
+        window.Covers.mount(c, c.dataset.art, i, cs);
+      }
       return c;
     });
     var n = items.length, active = 0, playing = (site.autoplaySeconds || 0) > 0;
