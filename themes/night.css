@@ -1,6 +1,5 @@
-/* Night shelf: the reference look. Black room, grey and charcoal spines,
-   one burnt orange, a condensed serif for headings, Archivo for reading. */
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Instrument+Serif&display=swap");
+/* Night: the reference look. Black room, grey and charcoal spines, Archivo throughout. */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap");
 
 :root {
   color-scheme: dark;
@@ -8,18 +7,18 @@
   --ink: #f1efea;
   --ink-2: #8f8d88;
   --rule: rgba(255, 255, 255, 0.16);
-  --accent: #c4512f;
+  --accent: #ffffff;
 
   --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Instrument Serif", Georgia, serif;
-  --display-case: uppercase;
-  --display-tracking: 0.02em;
-  --display-weight: 400;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --display-case: none;
+  --display-tracking: 0;
+  --display-weight: 600;
   --display-stretch: 100%;
-  --title-font: "Instrument Serif", Georgia, serif;
-  --title-weight: 400;
+  --title-font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --title-weight: 600;
   --title-stretch: 100%;
-  --title-tracking: 0;
+  --title-tracking: -0.015em;
 
   --font-spine: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --spine-weight: 600;
@@ -29,11 +28,11 @@
   --tone-light-bg: #a8a8a5;  --tone-light-ink: #111111;
   --tone-mid-bg:   #cfcfcb;  --tone-mid-ink:   #111111;
   --tone-dark-bg:  #262626;  --tone-dark-ink:  #f1efea;
-  --tone-accent-bg:#c4512f;  --tone-accent-ink:#f6eee8;
+  --tone-accent-bg:#ecebe7;  --tone-accent-ink:#111111;
 
   --cover-bg: #ecebe7;
   --cover-ink: #0b0b0b;
-  --cover-accent: #c4512f;
+  --cover-accent: #6b6a66;
   --floor-shadow: rgba(0,0,0,.9);
   --spine-shade: linear-gradient(90deg, rgba(0,0,0,.22), rgba(255,255,255,.06) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.18));
 }

@@ -36,10 +36,10 @@ button { font: inherit; color: inherit; }
 
 /* ---------- header and footer ---------- */
 .top {
-  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline;
+  display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center;
   gap: 6px 24px; padding: 22px var(--gutter) 0; font-size: 14px; font-stretch: 90%;
 }
-.top-name { font-weight: 600; letter-spacing: 0.01em; }
+.top-name { font-weight: 600; letter-spacing: 0.01em; margin-right: auto; }
 .top-nav { display: flex; gap: 22px; color: var(--ink-2); }
 .top-nav a:hover, .top-nav a:focus-visible { color: var(--ink); }
 
@@ -54,18 +54,7 @@ button { font: inherit; color: inherit; }
 .load-error a { text-decoration: underline; }
 
 /* ---------- shelf ---------- */
-.shelf { padding: clamp(48px, 9vh, 110px) 0 0; overflow: hidden; }
-.shelf-head {
-  display: flex; align-items: center; justify-content: center; gap: 18px;
-  margin: 0 var(--gutter) clamp(36px, 7vh, 70px);
-}
-.shelf-rule { width: clamp(28px, 6vw, 48px); height: 1px; background: currentColor; opacity: 0.55; }
-.shelf-title {
-  margin: 0; font-family: var(--font-display); font-weight: var(--display-weight);
-  font-stretch: var(--display-stretch); text-transform: var(--display-case);
-  letter-spacing: var(--display-tracking); font-size: clamp(20px, 2.2vw, 26px); line-height: 1;
-}
-
+.shelf { padding: clamp(56px, 12vh, 140px) 0 0; overflow: hidden; }
 .stage {
   position: relative; height: calc(var(--book-h) + 60px); padding-top: 20px;
   touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -296,17 +285,16 @@ button { font: inherit; color: inherit; }
 .lb-hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 12px; opacity: 0.6; pointer-events: none; }
 .lightbox.is-full .lb-hint { display: none; }
 
-/* theme picker (only with ?themes or while previewing a theme) */
-.theme-picker {
-  position: fixed; left: 14px; bottom: 14px; z-index: 40; display: flex; align-items: center; gap: 8px;
-  padding: 8px 10px; font-size: 12px; background: var(--bg); color: var(--ink);
-  border: 1px solid var(--rule); border-radius: 6px; box-shadow: 0 6px 24px rgba(0,0,0,.2);
+/* theme switch in the header */
+.theme-switch { display: flex; gap: 2px; padding: 2px; border: 1px solid var(--rule); border-radius: 999px; font-size: 12px; }
+.theme-switch button {
+  background: none; border: 0; border-radius: 999px; padding: 3px 11px; cursor: pointer;
+  color: var(--ink-2); line-height: 1.4; font-stretch: 90%;
 }
-.theme-picker select, .theme-picker button {
-  font: inherit; color: inherit; background: transparent; border: 1px solid var(--rule); border-radius: 4px; padding: 3px 6px;
-}
-.theme-picker select option { color: #000; }
-.theme-picker button { cursor: pointer; }
+.theme-switch button:hover { color: var(--ink); }
+.theme-switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* phones */
 @media (max-width: 600px) {

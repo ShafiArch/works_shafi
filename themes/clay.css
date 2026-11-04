@@ -1,5 +1,5 @@
-/* Clay: warm paper, brick and earth tones, a classic serif for headings. */
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=Cormorant+Garamond:wght@500;600&display=swap");
+/* Clay: warm paper, brick and earth tones, Archivo throughout. */
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&display=swap");
 
 :root {
   color-scheme: light;
@@ -10,20 +10,20 @@
   --accent: #a8482a;
 
   --font-body: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --font-display: "Cormorant Garamond", Georgia, serif;
-  --display-case: uppercase;
-  --display-tracking: 0.12em;
+  --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --display-case: none;
+  --display-tracking: 0;
   --display-weight: 600;
   --display-stretch: 100%;
-  --title-font: "Cormorant Garamond", Georgia, serif;
-  --title-weight: 500;
+  --title-font: "Archivo", "Helvetica Neue", Arial, sans-serif;
+  --title-weight: 600;
   --title-stretch: 100%;
-  --title-tracking: -0.01em;
+  --title-tracking: -0.015em;
 
   --font-spine: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --spine-weight: 500;
-  --spine-stretch: 80%;
-  --spine-case: uppercase;
+  --spine-weight: 600;
+  --spine-stretch: 100%;
+  --spine-case: none;
 
   --tone-light-bg: #d8cdbb;  --tone-light-ink: #2a2420;
   --tone-mid-bg:   #8d7f6f;  --tone-mid-ink:   #f4efe7;

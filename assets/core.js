@@ -108,6 +108,7 @@
         '<nav class="top-nav">' + (site.nav || []).map(function (n) {
           return '<a href="' + esc(n.href) + '"' + linkAttrs(n.href) + ">" + esc(n.label) + "</a>";
         }).join("") + "</nav>";
+      themeSwitch(top);
     }
     var foot = document.querySelector("[data-foot]");
     if (foot) {
@@ -115,34 +116,27 @@
         '<div class="foot-about">' + md(site.about) + "</div>" +
         '<div class="foot-meta">' + esc(site.footer || site.name) + " · " + new Date().getFullYear() + "</div>";
     }
-    themePicker();
   }
 
-  function themePicker() {
+  /* Trace / Night / Clay switch in the header. */
+  function themeSwitch(top) {
     var T = window.SITE_THEMES;
-    if (!T) return;
-    var q = new URLSearchParams(location.search);
-    if (!q.has("themes") && !T.previewing) return;
+    if (!T || !top) return;
     var box = document.createElement("div");
-    box.className = "theme-picker";
-    box.innerHTML = "<span>" + (T.previewing ? "Previewing" : "Theme") + "</span>" +
-      '<select aria-label="Theme">' + Object.keys(T.THEMES).map(function (k) {
-        return '<option value="' + k + '"' + (k === T.current ? " selected" : "") + ">" +
-          esc(T.THEMES[k]) + (k === T.DEFAULT ? " (live)" : "") + "</option>";
-      }).join("") + "</select>" +
-      '<button type="button" data-reset>Reset</button>';
-    box.querySelector("select").addEventListener("change", function () {
-      var u = new URL(location.href);
-      u.searchParams.set("theme", this.value);
-      location.href = u.href;
+    box.className = "theme-switch";
+    box.setAttribute("role", "group");
+    box.setAttribute("aria-label", "Theme");
+    box.innerHTML = Object.keys(T.THEMES).map(function (k) {
+      return '<button type="button" data-set-theme="' + k + '" aria-pressed="' + (k === T.current) + '">' + esc(T.THEMES[k]) + "</button>";
+    }).join("");
+    box.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-set-theme]");
+      if (b) T.set(b.dataset.setTheme);
     });
-    box.querySelector("[data-reset]").addEventListener("click", function () {
-      var u = new URL(location.href);
-      u.searchParams.set("theme", "default");
-      u.searchParams.delete("themes");
-      location.href = u.href;
+    window.addEventListener("site-theme", function (e) {
+      [].forEach.call(box.children, function (b) { b.setAttribute("aria-pressed", String(b.dataset.setTheme === e.detail)); });
     });
-    document.body.appendChild(box);
+    top.appendChild(box);
   }
 
   /* Typographic cover for entries without an image. */

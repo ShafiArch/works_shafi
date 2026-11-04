@@ -39,7 +39,7 @@
     if (!items.length) { root.innerHTML = '<p class="load-error">No projects on the shelf yet.</p>'; return; }
 
     root.innerHTML =
-      '<div class="shelf-head"><span class="shelf-rule"></span><h1 class="shelf-title">' + esc(site.shelfTitle || "Selected Work") + '</h1><span class="shelf-rule"></span></div>' +
+      '<h1 class="visually-hidden">' + esc(site.name) + "</h1>" +
       '<div class="stage" tabindex="0" aria-roledescription="carousel" aria-label="' + esc(site.shelfTitle || "Selected Work") + '">' +
       '<div class="track">' + items.map(function (it, i) { return bookHTML(it, i, site); }).join("") + "</div></div>" +
       '<div class="caption" aria-live="polite"></div>' +
@@ -170,6 +170,10 @@
     requestAnimationFrame(function () { requestAnimationFrame(function () { track.classList.remove("no-anim"); root.classList.add("ready"); }); });
     fitSpines();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSpines(); layout(); });
+    window.addEventListener("site-theme", function () {
+      fitSpines(); layout();
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSpines(); layout(); });
+    });
     loop();
 
     if (site.showIndex !== false) buildIndex(items);

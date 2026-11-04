@@ -15,16 +15,16 @@
   --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
   --display-case: none;
   --display-tracking: 0;
-  --display-weight: 500;
-  --display-stretch: 88%;
+  --display-weight: 600;
+  --display-stretch: 100%;
   --title-font: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --title-weight: 400;
-  --title-stretch: 118%;
-  --title-tracking: -0.02em;
+  --title-weight: 600;
+  --title-stretch: 100%;
+  --title-tracking: -0.015em;
 
   --font-spine: "Archivo", "Helvetica Neue", Arial, sans-serif;
-  --spine-weight: 500;
-  --spine-stretch: 90%;
+  --spine-weight: 600;
+  --spine-stretch: 100%;
   --spine-case: none;
 
   --tone-light-bg: #e6e6e1;  --tone-light-ink: #000000;

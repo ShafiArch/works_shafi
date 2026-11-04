@@ -58,7 +58,7 @@ The `shelf` part of `project.json` controls the book:
 | Field | Meaning |
 |---|---|
 | `cover` | Image shown when the book opens. Leave empty for a typographic cover. |
-| `tone` | Spine color from the theme: `light`, `mid`, `dark`, `accent`, or `auto`. |
+| `tone` | Spine color from the theme: `light`, `mid`, `dark`, `accent`, or `auto`. The shelf currently uses only the neutral three. |
 | `spine` | Shorter text for the spine, if the title is long. |
 | `spineColor`, `spineInk` | A fixed spine color for this one book (any CSS color), overriding the theme. |
 | `coverText`, `coverNote` | Text for a typographic cover. |
@@ -98,26 +98,26 @@ python tools/images.py cover projects/seattle-library/01.webp --focus 0.6 0.5 --
 
 ## 7. Themes
 
-Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink`, `--ink-2`, `--rule`, `--accent`, the typefaces, and `--tone-*-bg` / `--tone-*-ink` for the four spine tones). Included:
+Each theme is one file in `themes/`. They define the same tokens (`--bg`, `--ink`, `--ink-2`, `--rule`, `--accent`, the typefaces, and `--tone-*-bg` / `--tone-*-ink` for the four spine tones). All three use Archivo throughout. Included:
 
-* `night`: the bookshelf reference look; black room, grey and charcoal spines, one burnt orange.
-* `trace`: the Grasshopper collection look; trace paper, black ink, blueprint blue, and it follows the visitor's dark mode.
-* `clay`: warm paper and brick tones with a serif.
+* `trace` (the default): the Grasshopper collection look; trace paper, black ink, blueprint blue, and it follows the visitor's dark mode.
+* `night`: the bookshelf reference look; black room, grey and charcoal spines.
+* `clay`: warm paper and earth tones.
 
-**Preview without publishing:** add `?theme=trace` to any page address. A small panel appears in the corner to switch between themes; `Reset` returns to the live one. Add `?themes` to show that panel at any time. Previews only affect your own browser.
+**The switch:** the Trace / Night / Clay buttons in the header change the theme on the spot, and each visitor's choice is remembered in their browser. Adding `?theme=night` to an address opens that page in a given theme.
 
-**Make a theme live:** change `DEFAULT` in `themes/themes.js`.
+**Change the default:** edit `DEFAULT` in `themes/themes.js`.
 
-**Make a new theme:** copy a theme file, rename it (for example `themes/ink.css`), change the values, and add it to `THEMES` in `themes/themes.js`.
+**Add or remove a theme:** copy a theme file, rename it (for example `themes/ink.css`), change the values, and add it to `THEMES` in `themes/themes.js`; the header switch lists whatever is there, in that order. Deleting a line from `THEMES` removes that button.
 
 Shelf proportions are in `assets/site.css` at the top: `--book-h` (height), `--spine-ratio`, `--cover-ratio`, `--open-angle`. A theme can override any of them in its own `:root`.
 
 ## 8. Publish and preview
 
 * **Publish:** in the repository, Settings, Pages, Source "Deploy from a branch", branch `main`, folder `/ (root)`. The site appears at https://shafiarch.github.io/works_shafi/ a minute or two after each commit.
-* **Cache rule:** the pages load the scripts and styles with `?v=1`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
+* **Cache rule:** the pages load the scripts and styles with `?v=2`. When you change a `.js` or `.css` file, raise that number in both `index.html` and `project.html` so visitors get the new file. JSON content is never cached, so content edits need nothing extra.
 * **Local preview:** the pages read JSON, which browsers block from a file opened directly. In the repository folder run `python -m http.server 8000` and open http://localhost:8000.
-* **Front page settings** in `content/site.json`: `shelfTitle`, `autoplaySeconds` (0 turns autoplay off), `showIndex` (the list under the shelf), `nav`, `about`, `footer`.
+* **Front page settings** in `content/site.json`: `shelfTitle` (read aloud by screen readers; not shown), `autoplaySeconds` (0 turns autoplay off), `showIndex` (the list under the shelf), `nav`, `about`, `footer`.
 
 ## 9. Writing
 
