@@ -62,5 +62,34 @@
     "ida-interior"
   ],
   "about": "Contributor to the Grasshopper Workflow Collection. MS Design Technology, University of Washington.",
-  "footer": "Shafiul Islam"
+  "footer": "Shafiul Islam",
+  "covers": {
+    "books": {
+      "natural-healing": {
+        "size": 0.7
+      },
+      "lego-city": {
+        "ink": {
+          "weight": 0.35
+        },
+        "speed": 0.65
+      },
+      "space-under-flyover": {
+        "size": 0.75
+      },
+      "grasshopper-collection": {
+        "size": 0.65
+      },
+      "sundar-bari": {
+        "ink": {
+          "weight": 0.5
+        }
+      },
+      "ida-interior": {
+        "ink": {
+          "weight": 0.5
+        }
+      }
+    }
+  }
 }
