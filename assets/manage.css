@@ -14,7 +14,7 @@
 .m-brand .m-switch:hover { color: var(--accent); }
 .m-status { font-size: 13px; color: var(--ink-2); }
 .m-status.has-changes { color: var(--accent); font-weight: 600; }
-.m-actions { display: flex; gap: 8px; }
+.m-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 .m-banner {
   display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 12px var(--gutter);
@@ -211,3 +211,21 @@
 }
 .m-toast.is-bad { background: var(--accent); }
 .m-toast.out { opacity: 0; transform: translate(-50%, 8px); }
+
+/* GitHub publishing (assets/github.js) */
+.gh-btn.is-on { color: var(--ink); border-color: var(--ink-2); }
+.gh-btn.is-on::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #2f9e44; margin-right: 6px; vertical-align: 1px; }
+.gh-modal { position: fixed; inset: 0; z-index: 70; background: rgba(0, 0, 0, 0.36); display: grid; place-items: center; padding: 16px; }
+.gh-box { width: min(620px, 100%); max-height: calc(100vh - 32px); display: flex; flex-direction: column; background: var(--bg); color: var(--ink); border-radius: 10px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3); }
+.gh-head { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid var(--rule); }
+.gh-head h2 { margin: 0; font-size: 17px; font-weight: 600; }
+.gh-body { padding: 14px 20px; overflow: auto; font-size: 14px; }
+.gh-body .m-steps { margin: 8px 0 16px; }
+.gh-foot { display: flex; align-items: center; gap: 8px; padding: 14px 20px; border-top: 1px solid var(--rule); }
+.gh-grow { flex: 1; }
+.gh-msg { font-size: 13px; color: var(--ink-2); min-height: 1em; }
+.gh-ok { color: #2f9e44; }
+.gh-files { list-style: none; margin: 4px 0 14px; padding: 0; max-height: 180px; overflow: auto; border: 1px solid var(--rule); border-radius: 6px; }
+.gh-files li { padding: 6px 10px; border-bottom: 1px solid var(--rule); font-size: 12px; }
+.gh-files li:last-child { border-bottom: 0; }
+.gh-del { color: var(--accent); font-weight: 600; font-size: 11px; }

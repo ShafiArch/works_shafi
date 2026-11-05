@@ -23,13 +23,15 @@ Paste something like this into the new chat:
 
 > Read HANDOFF.md and GUIDE.md in https://github.com/ShafiArch/works_shafi, then help me with: ...
 
+**Publishing by the owner.** The tools publish straight to GitHub with a fine-grained token stored in the owner's browser (section 7), so the owner no longer uploads zips. Claude sessions still push with git as below.
+
 **Access.** For a Claude session to push, the Claude GitHub App must be installed on the ShafiArch account with access to `works_shafi` (https://github.com/apps/claude/installations/select_target) and GitHub must be connected in claude.ai settings. Without it, Claude can read the public repo but pushes fail with 403; the fallback is to hand the owner a zip of changed files to upload (Add file, Upload files, commit). Repository settings (rename, Pages settings, About box) cannot be changed from a Claude session even with push access; the owner does those on GitHub.
 
 **Commits** in previous sessions used the identity `ShafiArch <ShafiArch@users.noreply.github.com>` and were pushed straight to `main` (the owner asked for direct deploys after the first pull request).
 
 **Deploying.** Every push to `main` runs GitHub's "pages build and deployment" workflow (about 40 seconds). It has twice hung on the deploy step or sat queued for 10+ minutes. Fix: cancel the run, then push an empty commit (`git commit --allow-empty -m "Trigger Pages deploy"`). Check with `gh api repos/ShafiArch/works_shafi/actions/runs --jq '.workflow_runs[0] | "\(.head_sha[0:7]) \(.status) \(.conclusion)"'`.
 
-**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=15`) in `index.html`, `project.html`, `manage.html`, `layout.html`, `covers.html` and `book.html`. Whenever any `.js` or `.css` changes, raise N in all six (and the number quoted in the Publish section of `GUIDE.md`). JSON content is fetched with `no-cache` and needs nothing.
+**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=17`) in `index.html`, `project.html`, `manage.html`, `layout.html`, `covers.html` and `book.html`. Whenever any `.js` or `.css` changes, raise N in all six (and the number quoted in the Publish section of `GUIDE.md`). JSON content is fetched with `no-cache` and needs nothing.
 
 **Testing locally.** `python3 -m http.server 8765` in the repo root (pages fetch JSON, so `file://` does not work). Previous sessions tested with Playwright (pre-installed in the Claude cloud workspace): screenshot the shelf, click through books, open the work list, check `document.documentElement.scrollWidth` equals the viewport width at 390 px (no sideways overflow), and drive the two tools end to end, including applying a downloaded zip to a copy of the repo. Google Fonts are blocked in that sandbox, so screenshots show fallback fonts.
 
@@ -48,6 +50,8 @@ Paste something like this into the new chat:
 | `assets/covers.js` | `window.Covers`: canvas line-drawing engine and the cover drawings (`ART`). |
 | `assets/project.js` | Project page: header, facts, 12 column block grid, block renderers, lightbox, preview mode. |
 | `assets/site.css` | All layout and motion; reads theme tokens only, never sets colours. |
+| `assets/github.js` | `window.GH`: token connect dialog, `read(path)` (GitHub when connected, else the site), atomic multi-file `commit`, the publish dialog with conflicts and deletions, the top bar status button. |
+| `tools/health.mjs` + `.github/workflows/health.yml` | Site health check (section 7). |
 | `assets/zip.js` | `window.Zip.make(entries)`: minimal stored zip writer used by both tools. |
 | `themes/themes.js` | `window.SITE_THEMES`: default theme, theme list, `set()` to switch live. |
 | `themes/trace.css`, `night.css`, `clay.css` | Theme tokens. |
@@ -151,6 +155,10 @@ These came from the owner's direct feedback, in roughly this order:
 
 **Book effect editor (book-editor.js).** The preview is `index.html?bookpreview=1` in a device-sized iframe; the editor posts `works-book` with the values and the shelf re-applies and re-measures (`works-book-ready` back). A master slider maps 0 to 100 onto the surface settings (65 reproduces the defaults exactly; 100 adds a rounded spine and corner rounding); proportions and speed are only set individually. Draft key `works-book-draft-v1`. Downloads `content/site.json` with only `book` changed (keys equal to the defaults are dropped).
 
+**Publishing (github.js).** A fine-grained personal access token (Contents: read and write on the repository only) is kept in `localStorage` (`works-gh-token`, repository in `works-gh-repo`, default guessed from the Pages address or `site.json` `repo`). `GH.read` uses the contents API when connected, else fetches from the site; `Site.getJSON` routes through it on tool pages (`body.page-manage`). A publish is one commit: blobs, a tree on top of the current main, a commit, then `PATCH refs/heads/main` without force (a race fails cleanly). Each tool's `publishNow` builds the plan from fresh reads: the site manager writes `site.json` except `covers` and `book` (taken from GitHub), plus project files, new images, and deletions of removed project folders (via the recursive tree); the cover and book tools write only their key; the layout editor writes whole project.json files. A conflict is reported when the part a tool owns differs on GitHub from what the tool loaded; the dialog then needs an explicit tick to replace it. After success each tool takes the published content as its new baseline and clears its draft. Tested in previous sessions with Playwright against an in-memory mock of the GitHub API (`page.route('https://api.github.com/**')`).
+
+**Health check (tools/health.mjs).** Node 20, no dependencies. Errors: invalid JSON, works entries without a folder or project.json, carousel ids not in works, top bar links missing a label or address, missing referenced files (cover, image, gallery, video, poster), unknown block types or cover drawings (drawing names are read from `ART.name =` in covers.js), different `?v=` numbers across the HTML pages, files over 50 MB, repository over 900 MB. Warnings: external links that fail (401, 403, 429 and 999 count as refused, only noted), images over 1.5 MB, repository over 700 MB, long dashes, hidden books still on the shelf. The workflow runs on push to main, Mondays 15:17 UTC and by hand; errors open or update an issue labelled `site-health` (warnings only on scheduled or manual runs), and a clear run closes it. The job fails on errors.
+
 ## 8. Open items
 
 - Years are blank for Space Under Flyover, Natural Healing and Sundar Bari.
@@ -169,3 +177,4 @@ These came from the owner's direct feedback, in roughly this order:
 5. Layout editor and the 12 column project grid added; then five text sizes and four paragraph alignments.
 6. Cover animation editor added (size, position, speed, and thickness and opacity per ink, as defaults plus per-book overrides). The owner then set per-book cover sizes and ink weights with it and uploaded them.
 7. Book effect editor added (block to full book).
+8. Publish to GitHub from every tool, and the weekly site health check. Next planned (owner's order): upload all projects and websites, then link previews and search visibility (static share pages per project), image budget, visit counts, self-hosted font, custom domain.

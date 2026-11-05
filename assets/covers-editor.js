@@ -54,7 +54,8 @@
   function changed() { return pretty(siteWith(st.covers)) !== pretty(siteWith(st.liveCovers)); }
 
   /* ---------- load ---------- */
-  S.getJSON("content/site.json").then(function (site) {
+  window.GH.read("content/site.json").then(function (t) { if (t == null) throw new Error("content/site.json not found"); return JSON.parse(t); }).then(function (site) {
+    if (site.repo) window.GH.setFallbackRepo(site.repo);
     st.site = site;
     st.liveCovers = { "default": {}, books: {} };
     if (site.covers) { st.liveCovers["default"] = clone(site.covers["default"] || {}); st.liveCovers.books = clone(site.covers.books || {}); }
@@ -104,6 +105,8 @@
       snapshot(); restore(JSON.stringify(st.liveCovers)); toast("Back to the published settings");
     };
     $("[data-download]").onclick = download;
+    $("[data-publish]").onclick = publishNow;
+    window.GH.button($("[data-gh]"));
     document.addEventListener("keydown", function (e) {
       if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z" || /^(INPUT|TEXTAREA)$/.test(document.activeElement.tagName) && document.activeElement.type !== "range") return;
       e.preventDefault(); $(e.shiftKey ? "[data-redo]" : "[data-undo]").click();
@@ -236,6 +239,31 @@
   function toast(msg) {
     var t = document.createElement("div"); t.className = "m-toast"; t.textContent = msg; document.body.appendChild(t);
     setTimeout(function () { t.classList.add("out"); }, 3400); setTimeout(function () { t.remove(); }, 4000);
+  }
+
+  /* this tool owns only "covers" in site.json; everything else is kept as it is on GitHub */
+  function publishNow() {
+    if (!changed()) { toast("Nothing has changed yet"); return; }
+    var mine = tidy(st.covers), merged = null;
+    window.GH.publish({
+      title: "Publish cover settings",
+      message: "Cover animation settings",
+      build: function () {
+        return window.GH.read("content/site.json").then(function (t) {
+          var remote = JSON.parse(t), plan = { files: [], conflicts: [], notes: [] };
+          var was = tidy({ "default": (remote.covers || {})["default"] || {}, books: (remote.covers || {}).books || {} });
+          if (pretty(was) !== pretty(tidy(st.liveCovers))) plan.conflicts.push("The cover settings in content/site.json were changed on GitHub");
+          merged = remote;
+          if (Object.keys(mine).length) merged.covers = mine; else delete merged.covers;
+          if (pretty(merged) !== t) plan.files.push({ path: "content/site.json", text: pretty(merged), why: "Cover settings only" });
+          return plan;
+        });
+      },
+      done: function () {
+        st.site = merged; st.liveCovers = { "default": clone(mine["default"] || {}), books: clone(mine.books || {}) };
+        saveDraft();
+      }
+    });
   }
 
   window.CoverEditor = { state: st, select: select };

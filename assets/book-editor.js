@@ -56,7 +56,8 @@
   function siteWith(b) { var s = JSON.parse(JSON.stringify(st.site)), t = tidy(b); if (Object.keys(t).length) s.book = t; else delete s.book; return s; }
   function changed() { return pretty(siteWith(st.book)) !== pretty(siteWith(st.live)); }
 
-  S.getJSON("content/site.json").then(function (site) {
+  window.GH.read("content/site.json").then(function (t) { if (t == null) throw new Error("content/site.json not found"); return JSON.parse(t); }).then(function (site) {
+    if (site.repo) window.GH.setFallbackRepo(site.repo);
     st.site = site; st.live = tidy(site.book || {}); st.book = JSON.parse(JSON.stringify(st.live));
     try {
       var d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
@@ -113,6 +114,8 @@
     $("[data-redo]").onclick = function () { if (!st.future.length) return; st.hist.push(JSON.stringify(st.book)); st.book = JSON.parse(st.future.pop()); st.effect = guessEffect(); drawSide(); saveDraft(); send(); };
     $("[data-revert]").onclick = function () { snapshot(); st.book = JSON.parse(JSON.stringify(st.live)); st.effect = guessEffect(); drawSide(); saveDraft(); send(); toast("Back to the published book effect"); };
     $("[data-download]").onclick = download;
+    $("[data-publish]").onclick = publishNow;
+    window.GH.button($("[data-gh]"));
     document.addEventListener("keydown", function (e) {
       if (!(e.ctrlKey || e.metaKey) || e.key.toLowerCase() !== "z") return;
       if (document.activeElement.tagName === "INPUT" && document.activeElement.type === "number") return;
@@ -204,5 +207,26 @@
     var t = document.createElement("div"); t.className = "m-toast"; t.textContent = msg; document.body.appendChild(t);
     setTimeout(function () { t.classList.add("out"); }, 3400); setTimeout(function () { t.remove(); }, 4000);
   }
+  /* this tool owns only "book" in site.json */
+  function publishNow() {
+    if (!changed()) { toast("Nothing has changed yet"); return; }
+    var mine = tidy(st.book), merged = null;
+    window.GH.publish({
+      title: "Publish the book effect",
+      message: "Book effect settings",
+      build: function () {
+        return window.GH.read("content/site.json").then(function (t) {
+          var remote = JSON.parse(t), plan = { files: [], conflicts: [], notes: [] };
+          if (pretty(tidy(remote.book || {})) !== pretty(tidy(st.live))) plan.conflicts.push("The book effect in content/site.json was changed on GitHub");
+          merged = remote;
+          if (Object.keys(mine).length) merged.book = mine; else delete merged.book;
+          if (pretty(merged) !== t) plan.files.push({ path: "content/site.json", text: pretty(merged), why: "Book effect only" });
+          return plan;
+        });
+      },
+      done: function () { st.site = merged; st.live = JSON.parse(JSON.stringify(mine)); saveDraft(); }
+    });
+  }
+
   window.BookEditor = { state: st, fromEffect: fromEffect };
 })();

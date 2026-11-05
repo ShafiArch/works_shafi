@@ -34,12 +34,13 @@
   function P() { return st.draft[st.slug]; }
 
   /* ---------- load ---------- */
-  S.getJSON("content/site.json").then(function (site) {
+  window.GH.read("content/site.json").then(function (t) { if (t == null) throw new Error("content/site.json not found"); return JSON.parse(t); }).then(function (site) {
+    if (site.repo) window.GH.setFallbackRepo(site.repo);
     st.site = site;
     var works = site.works || site.shelf || [];
     st.slugs = works.filter(function (e) { return e.project && !S.isURL(e.project); }).map(function (e) { return e.project; });
     return Promise.all(st.slugs.map(function (slug) {
-      return S.getJSON("projects/" + slug + "/project.json").then(function (p) { st.live[slug] = p; st.titles[slug] = p.title || slug; })
+      return window.GH.read("projects/" + slug + "/project.json").then(function (t) { if (t == null) throw new Error("not found"); return JSON.parse(t); }).then(function (p) { st.live[slug] = p; st.titles[slug] = p.title || slug; })
         .catch(function () { st.titles[slug] = slug + " (not found)"; });
     }));
   }).then(function () {
@@ -111,6 +112,8 @@
     $$("[data-device]").forEach(function (b) { b.onclick = function () { st.device = b.dataset.device; saveDraft(); fitFrame(); }; });
     $("[data-undo]").onclick = undo; $("[data-redo]").onclick = redo;
     $("[data-download]").onclick = download;
+    $("[data-publish]").onclick = publishNow;
+    window.GH.button($("[data-gh]"));
     $("[data-revert]").onclick = function () {
       var b = this;
       if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Sure? Revert"; setTimeout(function () { b.dataset.sure = ""; b.textContent = "Revert project"; }, 3000); return; }
@@ -433,6 +436,30 @@
   function toast(msg) {
     var t = document.createElement("div"); t.className = "m-toast"; t.textContent = msg; document.body.appendChild(t);
     setTimeout(function () { t.classList.add("out"); }, 3600); setTimeout(function () { t.remove(); }, 4200);
+  }
+
+  function publishNow() {
+    var slugs = changedSlugs();
+    if (!slugs.length) { toast("Nothing has changed yet"); return; }
+    window.GH.publish({
+      title: "Publish layout changes",
+      message: "Layout: " + slugs.map(function (s) { return st.titles[s] || s; }).join(", "),
+      build: function () {
+        var plan = { files: [], conflicts: [], notes: [] };
+        return Promise.all(slugs.map(function (s) {
+          var path = "projects/" + s + "/project.json";
+          return window.GH.read(path).then(function (t) {
+            if (t == null) plan.conflicts.push(path + " is no longer on GitHub");
+            else if (pretty(JSON.parse(t)) !== pretty(st.live[s])) plan.conflicts.push(path + " was changed on GitHub (perhaps in the site manager)");
+            plan.files.push({ path: path, text: pretty(st.draft[s]), why: "Layout and text" });
+          });
+        })).then(function () { return plan; });
+      },
+      done: function () {
+        slugs.forEach(function (s) { st.live[s] = JSON.parse(pretty(st.draft[s])); });
+        saveDraft();
+      }
+    });
   }
 
   window.LayoutEditor = { state: st, select: select };

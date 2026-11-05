@@ -6,10 +6,15 @@
   var cache = {};
   function getJSON(url) {
     if (!cache[url]) {
-      cache[url] = fetch(url, { cache: "no-cache" }).then(function (r) {
-        if (!r.ok) throw new Error(r.status + " " + url);
-        return r.json();
-      });
+      // the site tools, once connected to GitHub, read the repository itself so
+      // they never start from a published copy that has not caught up yet
+      var tool = window.GH && window.GH.connected() && document.body && document.body.classList.contains("page-manage") && !/^https?:/i.test(url);
+      cache[url] = tool
+        ? window.GH.read(url).then(function (t) { if (t == null) throw new Error("404 " + url); return JSON.parse(t); })
+        : fetch(url, { cache: "no-cache" }).then(function (r) {
+          if (!r.ok) throw new Error(r.status + " " + url);
+          return r.json();
+        });
     }
     return cache[url];
   }

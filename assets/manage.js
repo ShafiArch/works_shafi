@@ -147,17 +147,18 @@
   }
 
   function load() {
-    return fetch("content/site.json", { cache: "no-cache" }).then(function (r) {
-      if (!r.ok) throw new Error("content/site.json " + r.status);
-      return r.text();
-    }).then(function (text) {
+    return window.GH.read("content/site.json").then(function (text) {
+      if (text == null) throw new Error("content/site.json not found");
       var raw = JSON.parse(text);
+      if (raw.repo) window.GH.setFallbackRepo(raw.repo);
       st.live = normalise(raw);
       st.liveText = text;
       st.site = clone(st.live);
       return Promise.all(st.site.works.map(function (e) {
         var t = typeOf(e);
-        if (t === "project") return S.getJSON("projects/" + e.project + "/project.json").then(function (p) {
+        if (t === "project") return window.GH.read("projects/" + e.project + "/project.json").then(function (txt) {
+          if (txt == null) throw new Error("missing");
+          var p = JSON.parse(txt);
           st.liveProjects[e.project] = p; st.projects[e.project] = clone(p);
         }).catch(function () { st.projects[e.project] = { title: e.project }; });
         if (t === "remote") return fetchRemote(e.project);
@@ -467,18 +468,21 @@
     var files = changes(), paths = Object.keys(files).sort(), c = check();
     var removed = Object.keys(st.removed).filter(function (s) { return st.removed[s]; });
     main.innerHTML =
-      '<div class="m-head"><div><h1>Review and download</h1><p class="m-muted">Only the files that changed are included. The zip keeps the repository folders, so its contents go straight into the repository root.</p></div></div>' +
-      (c.errs.length ? '<div class="m-alert is-bad"><strong>Fix before downloading</strong><ul>' + c.errs.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>" : "") +
+      '<div class="m-head"><div><h1>Review and publish</h1><p class="m-muted">Only the files that changed are included. <strong>Publish</strong> commits them straight to GitHub; the zip is the manual way.</p></div></div>' +
+      (c.errs.length ? '<div class="m-alert is-bad"><strong>Fix before publishing</strong><ul>' + c.errs.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul></div>" : "") +
       (c.warns.length ? '<div class="m-alert"><strong>Worth a look</strong><ul>' + c.warns.map(function (e) { return "<li>" + esc(e) + "</li>"; }).join("") + "</ul>" +
         (c.dashes ? '<button type="button" class="m-btn m-small" data-fixdash>Replace long dashes with commas</button>' : "") + "</div>" : "") +
       (paths.length ? '<table class="m-table"><thead><tr><th>File</th><th>Change</th><th>Size</th><th></th></tr></thead><tbody>' + paths.map(function (p) {
         var f = files[p], size = f.blob ? f.blob.size : new Blob([f.text]).size;
         return "<tr><td><code>" + esc(p) + "</code></td><td>" + esc(f.why) + "</td><td>" + fmtSize(size) + '</td><td><button type="button" class="m-btn m-small" data-one="' + attr(p) + '">Download</button></td></tr>';
       }).join("") + "</tbody></table>" +
-        '<div class="m-download"><button type="button" class="m-btn m-primary m-big" data-zip' + (c.errs.length ? " disabled" : "") + '>Download changes (.zip)</button>' +
+        '<div class="m-download"><button type="button" class="m-btn m-primary m-big" data-publish' + (c.errs.length ? " disabled" : "") + ">Publish to GitHub</button>" +
+        '<button type="button" class="m-btn" data-zip' + (c.errs.length ? " disabled" : "") + '>Download changes (.zip)</button>' +
         '<span class="m-muted">' + paths.length + " file" + (paths.length === 1 ? "" : "s") + "</span></div>" : '<p class="m-empty">Nothing has changed yet.</p>') +
-      (removed.length ? '<div class="m-alert"><strong>Folders to delete by hand</strong><p>These projects are off the site, but their folders stay in the repository until you delete them on GitHub (open the folder, then the file menu, Delete directory): ' + removed.map(function (s) { return "<code>projects/" + esc(s) + "/</code>"; }).join(", ") + "</p></div>" : "") +
-      '<h2 class="m-h2">Uploading to GitHub</h2><ol class="m-steps">' +
+      (removed.length ? '<div class="m-alert"><strong>Folders of removed projects</strong><p>' + removed.map(function (s) { return "<code>projects/" + esc(s) + "/</code>"; }).join(", ") + "</p>" +
+        '<label class="m-check"><input type="checkbox" data-delfolders' + (st.deleteFolders !== false ? " checked" : "") + "> Delete these folders when publishing</label>" +
+        '<p class="m-hint">With the zip, delete them by hand on GitHub (open the folder, then the file menu, Delete directory).</p></div>' : "") +
+      '<h2 class="m-h2">' + (window.GH.connected() ? "Uploading by hand (without Publish)" : "Uploading to GitHub by hand") + '</h2><ol class="m-steps">' +
       "<li>Unzip the download. You get a <code>content</code> folder and, if projects changed, a <code>projects</code> folder.</li>" +
       "<li>Open the repository on GitHub" + (st.repo ? ' (<a href="https://github.com/' + esc(st.repo) + '" target="_blank" rel="noopener">github.com/' + esc(st.repo) + "</a>)" : "") + ", then <strong>Add file</strong>, <strong>Upload files</strong>.</li>" +
       "<li>Drag the unzipped folders (not the zip itself) into the page. Files with the same path are replaced.</li>" +
@@ -487,12 +491,88 @@
       '<p class="m-muted">After uploading, press <strong>Discard changes</strong> at the top to clear this draft.</p>';
     var zip = $("[data-zip]", main);
     if (zip) zip.onclick = function () { downloadZip(files); };
+    var pub = $("[data-publish]", main);
+    if (pub) pub.onclick = publishNow;
+    var df = $("[data-delfolders]", main);
+    if (df) df.onchange = function () { st.deleteFolders = df.checked; };
     $$("[data-one]", main).forEach(function (b) {
       b.onclick = function () { var f = files[b.dataset.one]; save(f.blob || new Blob([f.text], { type: "application/json" }), b.dataset.one.split("/").pop()); };
     });
     var fd = $("[data-fixdash]", main);
     if (fd) fd.onclick = function () { fixDashes(); render(); toast("Long dashes replaced"); };
   }
+  /* ---------- publish straight to GitHub ---------- */
+  function ownedPart(site) {
+    var c = normalise(site); delete c.covers; delete c.book;
+    return pretty(c);
+  }
+  function publishNow() {
+    var files = changes(), paths = Object.keys(files).sort();
+    var removed = Object.keys(st.removed).filter(function (s) { return st.removed[s] && !st.site.works.some(function (e) { return e.project === s; }); });
+    var merged = null;
+    window.GH.publish({
+      title: "Publish site changes",
+      message: publishMessage(paths),
+      build: function () {
+        var plan = { files: [], conflicts: [], notes: [] };
+        return window.GH.read("content/site.json").then(function (t) {
+          var remote = t ? JSON.parse(t) : {};
+          // this tool owns everything in site.json except the cover and book settings
+          merged = siteOut();
+          if (remote.covers) merged.covers = remote.covers; else delete merged.covers;
+          if (remote.book) merged.book = remote.book; else delete merged.book;
+          if (files["content/site.json"] || t == null) {
+            if (t != null && ownedPart(remote) !== ownedPart(st.live)) plan.conflicts.push("content/site.json: works, shelf order, top bar or settings");
+            if (!t || pretty(merged) !== t) plan.files.push({ path: "content/site.json", text: pretty(merged), why: "Works, shelf order, top bar or settings" });
+          }
+          return Promise.all(paths.filter(function (p) { return /project\.json$/.test(p); }).map(function (p) {
+            var slug = p.split("/")[1], before = st.liveProjects[slug];
+            return window.GH.read(p).then(function (rt) {
+              var now = rt == null ? null : pretty(JSON.parse(rt));
+              if (before ? now !== pretty(before) : now !== null) plan.conflicts.push(p + (before ? " was changed on GitHub" : " already exists on GitHub"));
+              plan.files.push({ path: p, text: files[p].text, why: files[p].why });
+            });
+          }));
+        }).then(function () {
+          paths.forEach(function (p) { if (files[p].blob) plan.files.push({ path: p, blob: files[p].blob, why: files[p].why }); });
+          if (!removed.length || st.deleteFolders === false || !window.GH.connected()) return;
+          return Promise.all(removed.map(function (slug) {
+            return window.GH.listTree("projects/" + slug + "/").then(function (list) {
+              list.forEach(function (path) { plan.files.push({ path: path, remove: true }); });
+            });
+          }));
+        }).then(function () { return plan; });
+      },
+      done: function (commit, plan) {
+        // what is now on GitHub becomes the new starting point
+        st.site.covers = merged.covers; st.site.book = merged.book;
+        if (!merged.covers) delete st.site.covers;
+        if (!merged.book) delete st.site.book;
+        st.live = normalise(merged); st.liveText = pretty(siteOut());
+        plan.files.forEach(function (f) {
+          var m = f.path.match(/^projects\/([^/]+)\/project\.json$/);
+          if (m && !f.remove) st.liveProjects[m[1]] = clone(st.projects[m[1]]);
+        });
+        removed.forEach(function (slug) {
+          if (plan.files.some(function (f) { return f.remove && f.path.indexOf("projects/" + slug + "/") === 0; })) {
+            delete st.removed[slug]; delete st.liveProjects[slug]; delete st.projects[slug];
+          }
+        });
+        Object.keys(st.blobs).forEach(function (p) { var m = p.match(/^projects\/([^/]+)\/(.+)$/); if (m && st.known[m[1]]) st.known[m[1]].add(m[2]); });
+        st.blobs = {};
+        clearDraft(); render();
+      }
+    });
+  }
+  function publishMessage(paths) {
+    var newProjects = paths.filter(function (p) { var m = p.match(/^projects\/([^/]+)\/project\.json$/); return m && !st.liveProjects[m[1]]; })
+      .map(function (p) { var slug = p.split("/")[1]; return (st.projects[slug] || {}).title || slug; });
+    if (newProjects.length) return "Add " + newProjects.join(", ");
+    var edited = paths.filter(function (p) { return /project\.json$/.test(p); }).map(function (p) { var slug = p.split("/")[1]; return (st.projects[slug] || {}).title || slug; });
+    if (edited.length) return "Update " + edited.join(", ");
+    return "Update works, shelf and top bar";
+  }
+
   function fmtSize(n) { return n < 1024 ? n + " B" : n < 1048576 ? Math.round(n / 1024) + " KB" : (n / 1048576).toFixed(1) + " MB"; }
   function save(blob, name) {
     var a = document.createElement("a");
@@ -1060,6 +1140,7 @@
     render(); toast("Back to the published site");
   };
 
+  window.GH.button($("[data-gh]"));
   window.SiteManager = { state: st, changes: changes, check: check };
   load();
 })();

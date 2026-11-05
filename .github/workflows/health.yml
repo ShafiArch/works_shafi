@@ -1,0 +1,65 @@
+# Site health check: after every commit to main, every Monday, or by hand
+# (Actions tab, Site health check, Run workflow). Problems open an issue labelled
+# site-health, which GitHub emails to you; the issue closes itself once a later
+# check is clear. The checks live in tools/health.mjs.
+name: Site health check
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 15 * * 1"   # Mondays, 7:17 in Seattle (15:17 UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: site-health
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check the site
+        id: health
+        continue-on-error: true
+        run: node tools/health.mjs --report health-report.md
+
+      - name: Open, update or close the health issue
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STATUS: ${{ steps.health.outputs.status }}
+          EVENT: ${{ github.event_name }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          gh label create site-health --color B60205 --description "Found by the site health check" --force >/dev/null 2>&1 || true
+          open=$(gh issue list --label site-health --state open --json number --jq '.[0].number')
+          # errors always raise the issue; warnings only on the weekly or manual run, so a flaky link does not ring on every commit
+          if [ "$STATUS" = "errors" ] || { [ "$STATUS" = "warnings" ] && [ "$EVENT" != "push" ]; }; then
+            printf '\n[Full run](%s)\n' "$RUN_URL" >> health-report.md
+            if [ -n "$open" ]; then
+              gh issue comment "$open" --body-file health-report.md
+            else
+              gh issue create --title "Site health check found problems" --label site-health --body-file health-report.md
+            fi
+          elif [ "$STATUS" = "ok" ] && [ -n "$open" ]; then
+            gh issue comment "$open" --body "All clear on the latest check. Closing. [Run]($RUN_URL)"
+            gh issue close "$open"
+          fi
+
+      - name: Fail when the site has errors
+        if: steps.health.outcome == 'failure'
+        run: |
+          echo "The site has errors; see the report above or the site-health issue."
+          exit 1
