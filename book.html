@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Book effect · Works</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <script src="themes/themes.js?v=15"></script>
+  <link rel="stylesheet" href="assets/site.css?v=15">
+  <link rel="stylesheet" href="assets/manage.css?v=15">
+  <link rel="stylesheet" href="assets/layout.css?v=15">
+  <link rel="stylesheet" href="assets/covers-editor.css?v=15">
+</head>
+<body class="page-manage page-layout page-book">
+  <header class="m-top">
+    <div class="m-brand"><a href="index.html">Works</a><span>Book effect</span><a class="m-switch" href="manage.html">Site manager</a><a class="m-switch" href="layout.html">Layout editor</a><a class="m-switch" href="covers.html">Cover animation</a></div>
+    <div class="l-devices" role="group" aria-label="Screen size" data-devices></div>
+    <div class="l-devices c-themes" role="group" aria-label="Preview theme" data-themes></div>
+    <div class="m-actions">
+      <button type="button" class="m-icon" data-undo aria-label="Undo" title="Undo (Ctrl+Z)">&#8630;</button>
+      <button type="button" class="m-icon" data-redo aria-label="Redo" title="Redo (Ctrl+Shift+Z)">&#8631;</button>
+      <span class="m-status" data-status></span>
+      <button type="button" class="m-btn" data-revert>Revert</button>
+      <button type="button" class="m-btn m-primary" data-download>Download</button>
+    </div>
+  </header>
+  <div class="l-layout">
+    <aside class="l-side" data-side><p class="m-muted">Loading.</p></aside>
+    <section class="l-stage" data-stage>
+      <div class="l-device-label" data-device-label></div>
+      <div class="l-frame" data-frame><iframe title="Front page preview" data-preview></iframe></div>
+    </section>
+  </div>
+  <script src="assets/core.js?v=15"></script>
+  <script src="assets/zip.js?v=15"></script>
+  <script src="assets/book-editor.js?v=15"></script>
+</body>
+</html>

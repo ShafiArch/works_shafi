@@ -24,3 +24,8 @@
 .c-reset:disabled { opacity: 0.25; cursor: default; }
 .c-reset:not(:disabled):hover { color: var(--accent); border-color: var(--accent); }
 .c-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: 0; box-shadow: 0 0 0 1px var(--ink-2); }
+
+/* book effect editor */
+.b-master .m-label { font-weight: 600; color: var(--ink); }
+.b-master input[type="range"] { height: 22px; }
+.b-presets { margin-top: 4px; }

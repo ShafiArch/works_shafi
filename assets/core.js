@@ -171,6 +171,47 @@
     canvas.style.setProperty("--art-y", lim(cs.y, -60, 20, 0));
   }
 
+  /* Book effect: site.json "book". Plain numbers in the units the editor shows.
+     Defaults are the look the site was designed with. */
+  var BOOK = {
+    angle:  { def: 64,  min: 30, max: 90 },    // how far the open book turns toward you, degrees (90 = flat)
+    depth:  { def: 95,  min: 0,  max: 100 },   // perspective strength
+    edge:   { def: 100, min: 0,  max: 100 },   // thin dark strips at the spine edges (the fillet)
+    curve:  { def: 0,   min: 0,  max: 100 },   // rounded spine, light across a cylinder
+    crease: { def: 100, min: 0,  max: 100 },   // shading where the cover meets the spine
+    shadow: { def: 100, min: 0,  max: 100 },   // floor shadow under the open book
+    lift:   { def: 8,   min: 0,  max: 20 },    // px a spine rises on hover
+    radius: { def: 0,   min: 0,  max: 8 },     // px corner rounding at the fore edge
+    spine:  { def: 100, min: 60, max: 160 },   // spine width, percent of normal
+    cover:  { def: 74,  min: 60, max: 90 },    // cover width as percent of its height
+    gap:    { def: 4,   min: 0,  max: 12 },    // space between books, percent of book height
+    speed:  { def: 0.9, min: 0.3, max: 2 }     // seconds for a book to turn
+  };
+  function bookValues(b) {
+    var out = {};
+    Object.keys(BOOK).forEach(function (k) {
+      var d = BOOK[k], v = parseFloat((b || {})[k]);
+      out[k] = isNaN(v) ? d.def : Math.min(d.max, Math.max(d.min, v));
+    });
+    return out;
+  }
+  function applyBook(el, b) {
+    var v = bookValues(b), st = el.style;
+    st.setProperty("--open-angle", v.angle);
+    st.setProperty("--persp-k", (30 - 27.2 * v.depth / 100).toFixed(3));
+    st.setProperty("--edge", v.edge / 100);
+    st.setProperty("--curve", v.curve / 100);
+    st.setProperty("--crease", v.crease / 100);
+    st.setProperty("--shadow", v.shadow / 100);
+    st.setProperty("--lift", v.lift);
+    st.setProperty("--radius", v.radius);
+    st.setProperty("--spine-k", v.spine / 100);
+    st.setProperty("--cover-ratio", v.cover / 100);
+    st.setProperty("--gap-k", v.gap / 100);
+    st.setProperty("--dur", v.speed + "s");
+    return v;
+  }
+
   /* Typographic cover for entries without an image. */
   function typeCover(item, site) {
     var s = item.shelf || {};
@@ -183,6 +224,6 @@
   window.Site = {
     getJSON: getJSON, loadShelf: loadShelf, loadSite: loadSite, entryId: entryId, slugify: slugify, resolveEntry: resolveEntry, projectBase: projectBase,
     abs: abs, esc: esc, md: md, inline: inline, pad: pad, renderChrome: renderChrome,
-    typeCover: typeCover, coverStyle: coverStyle, applyCoverBox: applyCoverBox, linkAttrs: linkAttrs, isURL: isURL
+    typeCover: typeCover, BOOK: BOOK, bookValues: bookValues, applyBook: applyBook, coverStyle: coverStyle, applyCoverBox: applyCoverBox, linkAttrs: linkAttrs, isURL: isURL
   };
 })();

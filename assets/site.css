@@ -57,6 +57,13 @@ button { font: inherit; color: inherit; }
 
 /* ---------- shelf ---------- */
 .shelf { padding: clamp(56px, 12vh, 140px) 0 0; overflow: hidden; }
+/* Book effect. Every value below can be changed with the book effect editor
+   (book.html), which writes site.json "book"; shelf.js sets them on .shelf. */
+.shelf {
+  --spine-w: calc(var(--book-h) * var(--spine-ratio) * var(--spine-k, 1));
+  --cover-w: calc(var(--book-h) * var(--cover-ratio));
+  --shelf-gap: calc(var(--book-h) * var(--gap-k, 0.04));
+}
 .stage {
   position: relative; height: calc(var(--book-h) + 60px); padding-top: 20px;
   touch-action: pan-y; user-select: none; -webkit-user-select: none;
@@ -74,7 +81,7 @@ button { font: inherit; color: inherit; }
   --spine-bg: var(--tone-light-bg); --spine-ink: var(--tone-light-ink);
   position: relative; flex: none; display: block;
   width: var(--spine-w); height: var(--book-h);
-  perspective: calc(var(--book-h) * 4.2);
+  perspective: calc(var(--book-h) * var(--persp-k, 4.2));
   perspective-origin: 50% 50%;
   transition: width var(--dur) var(--ease), transform 0.35s ease;
   cursor: pointer;
@@ -84,7 +91,7 @@ button { font: inherit; color: inherit; }
 .book.tone-dark   { --spine-bg: var(--tone-dark-bg);   --spine-ink: var(--tone-dark-ink); }
 .book.tone-accent { --spine-bg: var(--tone-accent-bg); --spine-ink: var(--tone-accent-ink); }
 .book.is-active { width: var(--open-w, calc(var(--spine-w) * 0.31 + var(--cover-w) * 0.95)); cursor: pointer; }
-.book:not(.is-active):hover { transform: translateY(-8px); }
+.book:not(.is-active):hover { transform: translateY(calc(var(--lift, 8) * -1px)); }
 
 .book-3d {
   position: absolute; left: 0; top: 0; width: var(--spine-w); height: 100%;
@@ -101,7 +108,13 @@ button { font: inherit; color: inherit; }
   display: flex; flex-direction: column; align-items: center; justify-content: space-between;
   padding: calc(var(--spine-w) * 0.38) 0 calc(var(--spine-w) * 0.3);
 }
-.spine::after { content: ""; position: absolute; inset: 0; background: var(--spine-shade); pointer-events: none; }
+.spine { border-radius: calc(var(--radius, 0) * 1px) 0 0 calc(var(--radius, 0) * 1px); }
+.spine::after { content: ""; position: absolute; inset: 0; background: var(--spine-shade); pointer-events: none; opacity: var(--edge, 1); }
+/* rounded spine: a cylinder of light across the spine */
+.spine::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--curve, 0);
+  background: linear-gradient(90deg, rgba(0,0,0,.38), rgba(255,255,255,.22) 28%, rgba(255,255,255,0) 52%, rgba(0,0,0,.08) 78%, rgba(0,0,0,.34));
+}
 .spine-title, .spine-foot {
   writing-mode: vertical-rl; font-family: var(--font-spine); font-weight: var(--spine-weight);
   font-stretch: var(--spine-stretch); text-transform: var(--spine-case);
@@ -114,6 +127,7 @@ button { font: inherit; color: inherit; }
   left: 100%; width: var(--cover-w);
   transform-origin: 0 50%; transform: rotateY(90deg);
   background: var(--cover-bg);
+  border-radius: 0 calc(var(--radius, 0) * 1px) calc(var(--radius, 0) * 1px) 0;
 }
 /* soft floor shadow under the open book */
 .book::after {
@@ -121,10 +135,10 @@ button { font: inherit; color: inherit; }
   border-radius: 50%; background: radial-gradient(closest-side, var(--floor-shadow, rgba(0,0,0,.45)), transparent);
   opacity: 0; transition: opacity var(--dur) var(--ease); pointer-events: none; filter: blur(4px);
 }
-.book.is-active::after { opacity: 1; }
+.book.is-active::after { opacity: var(--shadow, 1); }
 .cover img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
 .cover::after {
-  content: ""; position: absolute; inset: 0; pointer-events: none;
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: var(--crease, 1);
   background: linear-gradient(90deg, rgba(0,0,0,.18), rgba(255,255,255,.08) 2.5%, rgba(0,0,0,0) 6%);
 }
 

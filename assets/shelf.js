@@ -67,6 +67,7 @@
       '<span class="probe" aria-hidden="true"></span>';
 
     var probe = root.querySelector(".probe");
+    S.applyBook(root, site.book);
     var stage = root.querySelector(".stage"), track = root.querySelector(".track");
     var books = [].slice.call(track.children), caption = root.querySelector(".caption");
     var count = root.querySelector("[data-count]"), playBtn = root.querySelector("[data-play]");
@@ -195,6 +196,18 @@
     requestAnimationFrame(function () { requestAnimationFrame(function () { track.classList.remove("no-anim"); root.classList.add("ready"); }); });
     fitSpines();
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { fitSpines(); layout(); });
+    /* live preview for the book effect editor (book.html) */
+    if (new URLSearchParams(location.search).get("bookpreview") === "1" && window.parent !== window) {
+      window.addEventListener("message", function (e) {
+        if (e.origin !== location.origin || !e.data || e.data.type !== "works-book") return;
+        S.applyBook(root, e.data.book);
+        track.classList.add("no-anim"); fitSpines(); layout();
+        if (window.Covers) window.Covers.refresh();
+        requestAnimationFrame(function () { track.classList.remove("no-anim"); });
+      });
+      document.addEventListener("click", function (e) { if (e.target.closest("a.book.is-active, .cap-title, .cap-open, .top a")) e.preventDefault(); }, true);
+      window.parent.postMessage({ type: "works-book-ready" }, location.origin);
+    }
     window.addEventListener("site-theme", function () {
       fitSpines(); layout();
       if (window.Covers) window.Covers.refresh();

@@ -11,6 +11,7 @@ A complete briefing for continuing this project in a fresh session (another Clau
   - Site manager: https://shafiarch.github.io/works_shafi/manage.html
   - Layout editor: https://shafiarch.github.io/works_shafi/layout.html
   - Cover animation editor: https://shafiarch.github.io/works_shafi/covers.html
+  - Book effect editor: https://shafiarch.github.io/works_shafi/book.html
 - **Sister project:** https://github.com/ShafiArch/Grasshopper, live at https://shafiarch.github.io/Grasshopper/ (a library of 38 .gh definitions with animated line-drawing cards; it has its own `HANDOFF.md`). Its top bar "Portfolio" link points to `https://shafiarch.github.io/works_shafi/`. This site's visual language (Archivo, trace paper, ink lines, one orange live element) comes from it.
 - **Purpose:** a personal architecture portfolio. The front page is a bookshelf carousel: every work is a book spine; the active book turns to show a cover with a small animated line drawing. Each project has its own page built from content blocks.
 
@@ -28,7 +29,7 @@ Paste something like this into the new chat:
 
 **Deploying.** Every push to `main` runs GitHub's "pages build and deployment" workflow (about 40 seconds). It has twice hung on the deploy step or sat queued for 10+ minutes. Fix: cancel the run, then push an empty commit (`git commit --allow-empty -m "Trigger Pages deploy"`). Check with `gh api repos/ShafiArch/works_shafi/actions/runs --jq '.workflow_runs[0] | "\(.head_sha[0:7]) \(.status) \(.conclusion)"'`.
 
-**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=14`) in `index.html`, `project.html`, `manage.html`, `layout.html` and `covers.html`. Whenever any `.js` or `.css` changes, raise N in all five (and the number quoted in the Publish section of `GUIDE.md`). JSON content is fetched with `no-cache` and needs nothing.
+**Cache rule (important).** All pages load scripts and styles with `?v=N` (currently `v=15`) in `index.html`, `project.html`, `manage.html`, `layout.html`, `covers.html` and `book.html`. Whenever any `.js` or `.css` changes, raise N in all six (and the number quoted in the Publish section of `GUIDE.md`). JSON content is fetched with `no-cache` and needs nothing.
 
 **Testing locally.** `python3 -m http.server 8765` in the repo root (pages fetch JSON, so `file://` does not work). Previous sessions tested with Playwright (pre-installed in the Claude cloud workspace): screenshot the shelf, click through books, open the work list, check `document.documentElement.scrollWidth` equals the viewport width at 390 px (no sideways overflow), and drive the two tools end to end, including applying a downloaded zip to a copy of the repo. Google Fonts are blocked in that sandbox, so screenshots show fallback fonts.
 
@@ -41,7 +42,8 @@ Paste something like this into the new chat:
 | `manage.html` + `assets/manage.js`, `assets/manage.css` | Site manager (section 7). |
 | `layout.html` + `assets/layout.js`, `assets/layout.css` | Layout editor (section 7). Uses `manage.css` for shared controls. |
 | `covers.html` + `assets/covers-editor.js`, `assets/covers-editor.css` | Cover animation editor (section 7). Uses `manage.css` and `layout.css`. |
-| `assets/core.js` | `window.Site`: JSON loading, entry resolution (`loadSite` returns `{works, books}`), markdown-lite (`md`, `inline`), header and footer, header theme switch, typographic cover, `coverStyle(site, id)` and `applyCoverBox(canvas, style)` for the cover animation settings. |
+| `book.html` + `assets/book-editor.js` | Book effect editor (section 7). Styles from `manage.css`, `layout.css`, `covers-editor.css`. |
+| `assets/core.js` | `window.Site`: JSON loading, entry resolution (`loadSite` returns `{works, books}`), markdown-lite (`md`, `inline`), header and footer, header theme switch, typographic cover, `coverStyle(site, id)` and `applyCoverBox(canvas, style)` for the cover animation settings, `BOOK` (book effect ranges and defaults), `bookValues(b)` and `applyBook(el, b)`. |
 | `assets/shelf.js` | The bookshelf carousel, drawn covers, and the collapsible Work list. |
 | `assets/covers.js` | `window.Covers`: canvas line-drawing engine and the cover drawings (`ART`). |
 | `assets/project.js` | Project page: header, facts, 12 column block grid, block renderers, lightbox, preview mode. |
@@ -79,7 +81,8 @@ Projects on the site: `lego-city`, `space-under-flyover`, `natural-healing`, `su
   "covers": {                           // cover animation editor; all optional
     "default": { "size": 1, "x": 0, "y": 0, "speed": 1, "ink": { "weight": 1, "opacity": 1 }, "accent": { "weight": 1, "opacity": 1 } },
     "books": { "<entry id>": { ...same keys, override the default... } }
-  }
+  },
+  "book": { "angle": 64, "depth": 95, "edge": 100, "curve": 0, "crease": 100, "shadow": 100, "lift": 8, "radius": 0, "spine": 100, "cover": 74, "gap": 4, "speed": 0.9 }   // book effect editor; these are the defaults, and only changed keys are saved
 }
 ```
 
@@ -87,6 +90,7 @@ Projects on the site: `lego-city`, `space-under-flyover`, `natural-healing`, `su
 - **Entry types and ids:** `{ "project": "lego-city" }` (id = folder); `{ "project": "https://.../folder/" }` (a project.json published elsewhere; id = the address); `{ "id", "type": "website" | "repository", "title", "subtitle", "category", "year", "url", "open": "tab" | "embed", "shelf": {...} }`. Fields on a project entry override the project.json (the site manager moves them into the project.json on save).
 - **Previous/next** on project pages follow `works` order.
 - **covers:** `size` scales the drawing box (0.4 to 2), `x` and `y` move it in percent of the cover width (x -45 to 45, y -60 to 20; the cover clips overflow), `speed` 0 to 4 (0 = still), per ink `weight` 0.2 to 4 and `opacity` 0 to 1. Size and offset are CSS variables on the canvas (`--art-size`, `--art-x`, `--art-y`); speed and inks go to `Covers.mount(canvas, art, i, style)` / `Covers.setStyle`. Time is accumulated per drawing, so a speed change never jumps.
+- **book:** ranges in `Site.BOOK`. `applyBook(.shelf, book)` sets CSS variables on the shelf: `--open-angle`, `--persp-k` (30 minus 27.2 times depth/100, times the book height), `--edge`, `--curve`, `--crease`, `--shadow` (opacities), `--lift`, `--radius` (px), `--spine-k`, `--cover-ratio`, `--gap-k`, `--dur`. `.shelf` redefines `--spine-w`, `--cover-w` and `--shelf-gap` so those overrides take effect (custom properties resolve where they are defined). The phone spine ratio still applies, multiplied by `--spine-k`.
 
 ### projects/<folder>/project.json
 
@@ -145,6 +149,8 @@ These came from the owner's direct feedback, in roughly this order:
 
 **Cover animation editor (covers-editor.js).** Loads `site.json` and the books on the shelf that have a drawing; shows every cover live (all animating) plus a large view of the selected one, with Trace / Night / Clay buttons. Left: *All books* (edits `covers.default`) and each book (edits `covers.books[id]`; a value set there is an override, the arrow removes it). Sliders with number boxes for size, left/right, up/down, speed, and thickness and opacity for each ink. Undo/redo, revert, download of `content/site.json` (only `covers` differs). Draft key `works-covers-draft-v1`. Because it rewrites the whole site.json from the published copy, unsaved site manager changes must be uploaded first.
 
+**Book effect editor (book-editor.js).** The preview is `index.html?bookpreview=1` in a device-sized iframe; the editor posts `works-book` with the values and the shelf re-applies and re-measures (`works-book-ready` back). A master slider maps 0 to 100 onto the surface settings (65 reproduces the defaults exactly; 100 adds a rounded spine and corner rounding); proportions and speed are only set individually. Draft key `works-book-draft-v1`. Downloads `content/site.json` with only `book` changed (keys equal to the defaults are dropped).
+
 ## 8. Open items
 
 - Years are blank for Space Under Flyover, Natural Healing and Sundar Bari.
@@ -161,4 +167,5 @@ These came from the owner's direct feedback, in roughly this order:
 3. Visual changes per section 6; drawn covers added and refined over several rounds.
 4. Site manager added; `site.json` moved to `works` + `carousel`.
 5. Layout editor and the 12 column project grid added; then five text sizes and four paragraph alignments.
-6. Cover animation editor added (size, position, speed, and thickness and opacity per ink, as defaults plus per-book overrides).
+6. Cover animation editor added (size, position, speed, and thickness and opacity per ink, as defaults plus per-book overrides). The owner then set per-book cover sizes and ink weights with it and uploaded them.
+7. Book effect editor added (block to full book).
