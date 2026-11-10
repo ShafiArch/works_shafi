@@ -1,4 +1,5 @@
-/* Front page: the bookshelf carousel and the project index. */
+/* Front page: the bookshelf carousel and the project index. When site.json
+   "front" is "contents", the cards in assets/contents.js are shown instead. */
 (function () {
   "use strict";
   var S = window.Site, esc = S.esc;
@@ -7,7 +8,15 @@
   S.getJSON("content/site.json").then(function (site) {
     S.renderChrome(site);
     document.title = site.name + (site.tagline ? ", " + site.tagline : "");
-    return S.loadSite(site).then(function (r) { build(site, r.books, r.works); });
+    return S.loadSite(site).then(function (r) {
+      // two front pages: the bookshelf (here) or the contents cards (assets/contents.js)
+      if (window.Contents && window.Contents.choose(site) === "contents") {
+        window.Contents.build(site, r.works, new URLSearchParams(location.search).get("group"));
+        if (site.showIndex !== false) buildIndex(r.works);
+        return;
+      }
+      build(site, r.books, r.works);
+    });
   }).catch(function (err) {
     console.error(err);
     document.querySelector("[data-shelf]").innerHTML =

@@ -3,6 +3,7 @@
   "repo": "ShafiArch/works_shafi",
   "tagline": "Architecture, visualization and computational design",
   "shelfTitle": "Selected Work",
+  "front": "contents",
   "autoplaySeconds": 3.5,
   "showIndex": true,
   "nav": [
@@ -61,6 +62,75 @@
     "sundar-bari",
     "ida-interior"
   ],
+  "contents": {
+    "title": "Contents",
+    "cards": [
+      {
+        "id": "target2plan",
+        "title": "Target2Plan",
+        "art": "plan",
+        "lines": [],
+        "works": []
+      },
+      {
+        "id": "kybele",
+        "title": "Kybele",
+        "art": "tower",
+        "lines": [],
+        "works": []
+      },
+      {
+        "id": "fabrication",
+        "title": "Fabrication",
+        "art": "fabrication",
+        "lines": [],
+        "works": []
+      },
+      {
+        "id": "grasshopper-workflows",
+        "title": "Grasshopper Workflows",
+        "art": "graph",
+        "lines": [
+          "Website",
+          "38 reusable definitions",
+          "Open to download"
+        ],
+        "works": [
+          "grasshopper-collection"
+        ]
+      },
+      {
+        "id": "simulation-workflows",
+        "title": "Simulation Workflows",
+        "art": "simulation",
+        "lines": [],
+        "works": []
+      },
+      {
+        "id": "undergraduate",
+        "title": "Undergraduate",
+        "art": "lego",
+        "lines": [
+          "Academic and competition",
+          "5 projects"
+        ],
+        "works": [
+          "lego-city",
+          "space-under-flyover",
+          "natural-healing",
+          "sundar-bari",
+          "ida-interior"
+        ]
+      },
+      {
+        "id": "other-projects",
+        "title": "Other Projects",
+        "art": "homestead",
+        "lines": [],
+        "works": []
+      }
+    ]
+  },
   "about": "Contributor to the Grasshopper Workflow Collection. MS Design Technology, University of Washington.",
   "footer": "Shafiul Islam",
   "covers": {
