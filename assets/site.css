@@ -427,7 +427,7 @@ body.front-contents {
 .ct-num { position: absolute; right: 7%; top: 3%; font-weight: 800; font-size: clamp(22px, 2.4vw, 38px); line-height: 1; letter-spacing: -0.02em; }
 .ct-card.is-even .ct-num { top: auto; bottom: 0; right: 0; }
 /* drawn in the page ink (the shelf covers use the cover ink, which is dark in every theme) */
-.ct-canvas { position: absolute; left: 0; bottom: 4%; width: 88%; height: 80%; --cover-art-scale: 1; --cover-ink: var(--ink); }
+.ct-canvas { position: absolute; left: 0; bottom: 4%; width: 88%; height: 80%; --cover-art-scale: 1; --cover-ink: var(--ink); --cover-paper: var(--bg); }
 .ct-card.is-even .ct-canvas { bottom: 14%; }
 .ct-title { display: block; text-align: right; font-weight: 700; letter-spacing: 0.06em; font-size: clamp(13px, 1.05vw, 16px); line-height: 1.25; min-height: 2.5em; }
 .ct-lines { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; margin-top: 14px; font-style: italic; font-size: 12.5px; color: var(--ink-2); text-align: right; }

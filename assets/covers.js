@@ -2,7 +2,8 @@
    Workflow Collection cards. Black ink, one orange live element, a slow orbit.
    A project picks its drawing with "art" in the shelf part of project.json:
      lego, flyover, healing, homestead, interior, graph  (made for these projects)
-     web, repo, tower, plan, fabrication, simulation     (general, for new entries)
+     web, repo, tower, plan                              (general, for new entries)
+     target2plan, kybele, fabrication, simulation        (thick wall axonometrics, contents cards)
    Add a new drawing by adding an entry to ART below. */
 (function () {
   "use strict";
@@ -42,6 +43,37 @@
   }
 
   var ART = {};
+
+  /* solid geometry for the thick wall axonometric drawings */
+  function F(pts, o) { var it = { kind: "face", pts: pts }; for (var k in o) it[k] = o[k]; return it; }
+  function solid(c, s, o) {   // a box with faces: c = centre of the base, s = size
+    o = o || {};
+    var x0 = c[0] - s[0] / 2, x1 = c[0] + s[0] / 2, y0 = c[1] - s[1] / 2, y1 = c[1] + s[1] / 2, z0 = c[2], z1 = c[2] + s[2];
+    function face(p, n) { return F(p, Object.assign({ nrm: n }, o)); }
+    return [
+      face([[x0, y0, z1], [x1, y0, z1], [x1, y1, z1], [x0, y1, z1]], [0, 0, 1]),
+      face([[x0, y0, z0], [x1, y0, z0], [x1, y0, z1], [x0, y0, z1]], [0, -1, 0]),
+      face([[x1, y0, z0], [x1, y1, z0], [x1, y1, z1], [x1, y0, z1]], [1, 0, 0]),
+      face([[x0, y1, z0], [x1, y1, z0], [x1, y1, z1], [x0, y1, z1]], [0, 1, 0]),
+      face([[x0, y0, z0], [x0, y1, z0], [x0, y1, z1], [x0, y0, z1]], [-1, 0, 0])
+    ];
+  }
+  /* a straight wall from (x0, y0) to (x1, y1), axis aligned, with optional gaps [from, to] along it */
+  function wall(x0, y0, x1, y1, h, t, gaps, o) {
+    var out = [], horiz = Math.abs(y1 - y0) < 1e-6, a = horiz ? Math.min(x0, x1) : Math.min(y0, y1), b = horiz ? Math.max(x0, x1) : Math.max(y0, y1);
+    var cuts = [[a, b]];
+    (gaps || []).forEach(function (g) {
+      var next = [];
+      cuts.forEach(function (c) { if (g[1] <= c[0] || g[0] >= c[1]) next.push(c); else { if (g[0] > c[0]) next.push([c[0], g[0]]); if (g[1] < c[1]) next.push([g[1], c[1]]); } });
+      cuts = next;
+    });
+    cuts.forEach(function (c) {
+      var m = (c[0] + c[1]) / 2, len = c[1] - c[0] + (c[0] === a ? t / 2 : 0) + (c[1] === b ? t / 2 : 0);
+      var mid = m + ((c[1] === b ? t / 4 : 0) - (c[0] === a ? t / 4 : 0));
+      out.push.apply(out, solid(horiz ? [mid, y0, 0] : [x0, mid, 0], horiz ? [len, t, h] : [t, len, h], o));
+    });
+    return out;
+  }
 
   /* Lego City: modules stack on stilts over moving water, the newest one live */
   ART.lego = {
@@ -313,43 +345,127 @@
     }
   };
 
-  /* Fabrication: a parametric screen of panels whose openings breathe, one panel live */
-  ART.fabrication = {
-    view: { el: 0.28, spin: 0.08, zoom: 0.36, yc: 0.8 },
+  /* Target2Plan: thick walled rooms cut open, the zone graph floating above, zones assigned in turn */
+  ART.target2plan = {
+    view: { el: 0.62, spin: 0, zoom: 0.4, yc: 0.62 },
     step: function (t) {
-      var out = [], cols = 5, rows = 6, W = 1.5, H = 1.8, cw = W / cols, ch = H / rows;
-      var live = Math.floor(t / 1.6) % (cols * rows);
-      out.push(L([[-W / 2, 0, 0], [W / 2, 0, 0], [W / 2, 0, H], [-W / 2, 0, H]], { closed: true, w: 1.2 }));
-      for (var i = 0; i < cols; i++) for (var j = 0; j < rows; j++) {
-        var cx = -W / 2 + (i + 0.5) * cw, cz = (j + 0.5) * ch;
-        var open = 0.25 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.7 + i * 0.9 - j * 0.6));
-        var rx = cw * 0.42 * open, rz = ch * 0.42 * open, k = i * rows + j;
-        out.push(L([[cx - cw / 2, 0, cz - ch / 2], [cx + cw / 2, 0, cz - ch / 2], [cx + cw / 2, 0, cz + ch / 2], [cx - cw / 2, 0, cz + ch / 2]], { closed: true, a: 0.25 }));
-        out.push(L([[cx, 0, cz - rz], [cx + rx, 0, cz], [cx, 0, cz + rz], [cx - rx, 0, cz]], k === live ? { closed: true, c: "accent", w: 1.4 } : { closed: true, a: 0.8 }));
-      }
-      out.push(L([[-W * 0.7, -0.5, 0], [W * 0.7, -0.5, 0], [W * 0.7, 0.5, 0], [-W * 0.7, 0.5, 0]], { closed: true, a: 0.15 }));
-      return out;
+      var out = [], h = 0.32, w = 0.07;
+      out.push.apply(out, solid([0, 0, -0.06], [2.14, 1.54, 0.06], { layer: 2, a: 0.5 }));
+      var rooms = [[-0.6, 0.38, 0.75, 0.6], [-0.6, -0.33, 0.75, 0.68], [0.4, 0.28, 1.15, 0.78], [0.4, -0.45, 1.15, 0.45]];
+      var on = Math.floor(t / 2.2) % rooms.length;
+      var r = rooms[on];
+      out.push(F([[r[0] - r[2] / 2, r[1] - r[3] / 2, 0.002], [r[0] + r[2] / 2, r[1] - r[3] / 2, 0.002], [r[0] + r[2] / 2, r[1] + r[3] / 2, 0.002], [r[0] - r[2] / 2, r[1] + r[3] / 2, 0.002]], { layer: 1, fill: "accent", stroke: false }));
+      out.push.apply(out, wall(-1, -0.7, 1, -0.7, h, w, [[-0.75, -0.45], [0.55, 0.85]]));
+      out.push.apply(out, wall(-1, 0.7, 1, 0.7, h, w, [[0.1, 0.4]]));
+      out.push.apply(out, wall(-1, -0.7, -1, 0.7, h, w, [[-0.2, 0.15]]));
+      out.push.apply(out, wall(1, -0.7, 1, 0.7, h, w, [[-0.05, 0.3]]));
+      out.push.apply(out, wall(-0.2, -0.7, -0.2, 0.7, h, w, [[0.2, 0.45]]));
+      out.push.apply(out, wall(-1, 0.05, -0.2, 0.05, h, w, [[-0.7, -0.45]]));
+      out.push.apply(out, wall(-0.2, -0.2, 1, -0.2, h, w, [[0.15, 0.4]]));
+      var zc = 0.62, pts = rooms.map(function (q) { return [q[0], q[1], zc]; });
+      [[0, 1], [0, 2], [1, 3], [2, 3], [1, 2]].forEach(function (e, k) {
+        out.push(L([pts[e[0]], pts[e[1]]], { c: "accent", w: 1.1, a: 0.85, dash: [0.04, 0.03], dashOff: -t * 0.05 - k * 0.02 }));
+      });
+      pts.forEach(function (p, k) {
+        out.push(L([p, [p[0], p[1], h + 0.02]], { a: 0.3, dash: [0.02, 0.02] }));
+        out.push(D(p, { c: k === on ? "accent" : undefined, r: k === on ? 3 : 2 }));
+      });
+      return { items: out, az: 0.22 * Math.sin(t * 0.25) };
     }
   };
 
-  /* Simulation: a room with openings, airflow lines streaming through it */
-  ART.simulation = {
-    view: { el: 0.45, spin: 0.07, zoom: 0.38, yc: 0.7 },
+  /* Kybele: a greenhouse on a thick base wall, tomato vines growing, daylight coming in */
+  ART.kybele = {
+    view: { el: 0.42, spin: 0, zoom: 0.4, yc: 0.7 },
     step: function (t) {
-      var out = [], a = 0.9, b = 0.6, h = 0.7;
-      out.push.apply(out, box([0, 0, 0], [a * 2, b * 2, h], { a: 0.75 }));
-      out.push(L([[-a, -0.25, 0.2], [-a, 0.25, 0.2], [-a, 0.25, 0.5], [-a, -0.25, 0.5]], { closed: true, w: 1.2 }));
-      out.push(L([[a, -0.1, 0.25], [a, 0.4, 0.25], [a, 0.4, 0.55], [a, -0.1, 0.55]], { closed: true, w: 1.2 }));
-      for (var g = -3; g <= 3; g++) out.push(L([[g * a / 3.5, -b, 0.001], [g * a / 3.5, b, 0.001]], { a: 0.15 }));
-      for (var s = 0; s < 7; s++) {
-        var y0 = -0.22 + s * 0.07, z0 = 0.24 + (s % 3) * 0.1, pts = [];
-        for (var k = 0; k <= 24; k++) {
-          var f = k / 24, x = lerp(-a - 0.5, a + 0.5, f);
-          pts.push([x, y0 + 0.12 * f + 0.05 * Math.sin(f * 7 + s), z0 + 0.06 * Math.sin(f * 5 + s * 0.8)]);
-        }
-        out.push(L(pts, { c: s === 3 ? "accent" : undefined, w: s === 3 ? 1.3 : 0.9, a: s === 3 ? 0.95 : 0.5, dash: [0.12, 0.06], dashOff: -t * 0.25 - s * 0.05 }));
+      var out = [], X = 0.9, Y = 0.55, hb = 0.16, w = 0.08, ze = 0.72, zr = 1.1;
+      out.push.apply(out, solid([0, 0, -0.05], [2.1, 1.4, 0.05], { layer: 2, a: 0.45 }));
+      out.push.apply(out, wall(-X, -Y, X, -Y, hb, w, [[-0.15, 0.15]]));
+      out.push.apply(out, wall(-X, Y, X, Y, hb, w));
+      out.push.apply(out, wall(-X, -Y, -X, Y, hb, w));
+      out.push.apply(out, wall(X, -Y, X, Y, hb, w));
+      for (var i = 0; i <= 6; i++) {                                    // gable frames
+        var x = -X + i * (2 * X / 6);
+        out.push(L([[x, -Y, hb], [x, -Y, ze], [x, 0, zr], [x, Y, ze], [x, Y, hb]], { w: 0.9, a: 0.7 }));
       }
-      return out;
+      out.push(L([[-X, 0, zr], [X, 0, zr]], { w: 1 }));
+      out.push(L([[-X, -Y, ze], [X, -Y, ze]], { w: 0.8, a: 0.6 })); out.push(L([[-X, Y, ze], [X, Y, ze]], { w: 0.8, a: 0.6 }));
+      [-0.25, 0.25].forEach(function (y, row) {                         // tomato vines
+        for (var k = 0; k < 5; k++) {
+          var x = -0.6 + k * 0.3, grow = 0.35 + 0.25 * (0.5 + 0.5 * Math.sin(t * 0.45 + k + row * 2)), pts = [];
+          for (var j = 0; j <= 10; j++) { var f = j / 10; pts.push([x + 0.03 * Math.sin(f * 7 + k), y, f * grow]); }
+          out.push(L(pts, { w: 0.9, a: 0.75 }));
+          [0.45, 0.7, 0.95].forEach(function (f, m) { var p = pts[Math.round(f * 10)]; if (p) out.push(D([p[0] + 0.04 * (m % 2 ? 1 : -1), p[1], p[2]], { c: "accent", r: 2.2 })); });
+        }
+      });
+      for (var s = 0; s < 4; s++) {                                     // daylight
+        var x0 = -1.4 + s * 0.35, sh = frac(t * 0.12 + s * 0.25);
+        out.push(L([[x0, -1.2, 1.8], [x0 + 0.7, -0.2, 0.35]], { c: "accent", w: 0.8, a: 0.35 + 0.4 * Math.sin(sh * Math.PI), dash: [0.06, 0.05], dashOff: -t * 0.12 }));
+      }
+      return { items: out, az: 0.25 * Math.sin(t * 0.22) };
+    }
+  };
+
+  /* Fabrication: a triangulated screen, CNC bones and disc joints, laser cut panels, on a plinth */
+  ART.fabrication = {
+    view: { el: 0.32, spin: 0, zoom: 0.38, yc: 0.82 },
+    init: function (s) {
+      var R = rng(5), nodes = [], cols = 4, rows = 6;
+      for (var j = 0; j <= rows; j++) for (var i = 0; i <= cols; i++) {
+        var u = i / cols, v = j / rows;
+        nodes.push([lerp(-0.55, 0.55, u) + (i && i < cols ? (R() - 0.5) * 0.12 : 0) + (j % 2 ? 0.07 : 0), 0, 0.12 + v * 1.55 + (j && j < rows ? (R() - 0.5) * 0.1 : 0)]);
+      }
+      var tris = [];
+      for (j = 0; j < rows; j++) for (i = 0; i < cols; i++) {
+        var a = j * (cols + 1) + i, b = a + 1, c = a + cols + 1, d = c + 1;
+        if ((i + j) % 2) { tris.push([a, b, d]); tris.push([a, d, c]); } else { tris.push([a, b, c]); tris.push([b, d, c]); }
+      }
+      s.nodes = nodes; s.tris = tris;
+    },
+    step: function (t, s) {
+      var out = [];
+      out.push.apply(out, solid([0, 0, 0], [0.9, 0.5, 0.1], { layer: 1 }));
+      var bend = function (p) { return [p[0], 0.16 * Math.sin(p[0] * 2.6 + p[2] * 1.4), p[2]]; };
+      var N = s.nodes.map(bend), live = Math.floor(t / 1.4) % s.tris.length;
+      s.tris.forEach(function (tr, k) {
+        var a = N[tr[0]], b = N[tr[1]], c = N[tr[2]], m = [(a[0] + b[0] + c[0]) / 3, (a[1] + b[1] + c[1]) / 3, (a[2] + b[2] + c[2]) / 3];
+        var shrink = function (p) { return [lerp(p[0], m[0], 0.32), lerp(p[1], m[1], 0.32), lerp(p[2], m[2], 0.32)]; };
+        out.push(F([shrink(a), shrink(b), shrink(c)], k === live ? { fill: "accent", c: "accent", w: 0.8 } : { shade: 0.05, w: 0.6, a: 0.6 }));
+        out.push(L([a, b, c], { closed: true, w: 1.5 }));
+      });
+      N.forEach(function (p) { out.push(D(p, { r: 2.6 })); });
+      return { items: out, az: 0.35 * Math.sin(t * 0.25) };
+    }
+  };
+
+  /* Simulation: the handloom dwelling, thick mud walls cut open, airflow streaming through */
+  ART.simulation = {
+    view: { el: 0.55, spin: 0, zoom: 0.4, yc: 0.66 },
+    step: function (t) {
+      var out = [], h = 0.3, w = 0.08;
+      out.push.apply(out, solid([0, 0.15, -0.06], [2.2, 1.6, 0.06], { layer: 2, a: 0.45 }));
+      // long room and the loom wing
+      out.push.apply(out, wall(-1, -0.35, 0.6, -0.35, h, w, [[-0.7, -0.45], [-0.1, 0.15]]));
+      out.push.apply(out, wall(-1, 0.25, 0.3, 0.25, h, w, [[-0.55, -0.3]]));
+      out.push.apply(out, wall(-1, -0.35, -1, 0.25, h, w));
+      out.push.apply(out, wall(0.6, -0.35, 0.6, 0.9, h, w, [[0.35, 0.6]]));
+      out.push.apply(out, wall(0.3, 0.25, 0.3, 0.9, h, w, [[0.45, 0.65]]));
+      out.push.apply(out, wall(0.3, 0.9, 0.6, 0.9, h, w));
+      out.push.apply(out, wall(-0.35, -0.35, -0.35, 0.25, h, w, [[-0.15, 0.1]]));
+      // pressure field on the floor of the long room, a few cells breathing
+      for (var i = 0; i < 6; i++) for (var j = 0; j < 2; j++) {
+        var x0 = -0.95 + i * 0.25, y0 = -0.3 + j * 0.25, v = 0.5 + 0.5 * Math.sin(t * 0.6 + i * 0.7 + j);
+        if (v > 0.7) out.push(F([[x0, y0, 0.002], [x0 + 0.22, y0, 0.002], [x0 + 0.22, y0 + 0.22, 0.002], [x0, y0 + 0.22, 0.002]], { layer: 1, fill: "accent", stroke: false }));
+      }
+      for (var s = 0; s < 6; s++) {                                     // streamlines through the openings
+        var x = -0.62 + s * 0.17, pts = [];
+        for (var k = 0; k <= 20; k++) {
+          var f = k / 20;
+          pts.push([x + 0.08 * Math.sin(f * 6 + s), lerp(-0.9, 0.85, f), 0.12 + 0.05 * Math.sin(f * 4 + s * 0.6)]);
+        }
+        out.push(L(pts, { c: "accent", w: s % 2 ? 0.8 : 1.2, a: 0.9, dash: [0.08, 0.05], dashOff: -t * 0.22 - s * 0.03 }));
+      }
+      return { items: out, az: 0.2 * Math.sin(t * 0.22) };
     }
   };
 
@@ -379,6 +495,7 @@
     var cs = getComputedStyle(this.canvas);
     this.ink = cs.getPropertyValue("--cover-ink").trim() || "#111";
     this.accent = cs.getPropertyValue("--cover-accent").trim() || "#c4512f";
+    this.paper = cs.getPropertyValue("--cover-paper").trim() || cs.getPropertyValue("--cover-bg").trim() || "#fff";
     this.size = parseFloat(cs.getPropertyValue("--cover-art-scale")) || 0.5;
   };
   Sketch.prototype.resize = function () {
@@ -394,7 +511,7 @@
     var res = this.gen.step(t, this.state), items = res, extra = 0;
     if (res && !Array.isArray(res)) { items = res.items; extra = res.az || 0; }
     var az = v.az + v.spin * t + extra, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el);
-    return { items: items, v: v, pr: function (p) { var x1 = p[0] * ca - p[1] * sa, y1 = p[0] * sa + p[1] * ca; return [x1, -(p[2] * ce + y1 * se)]; } };
+    return { items: items, v: v, az: az, pr: function (p) { var x1 = p[0] * ca - p[1] * sa, y1 = p[0] * sa + p[1] * ca; return [x1, -(p[2] * ce + y1 * se)]; } };
   };
   /* Sample the animation once to find how far the drawing reaches left and down,
      so it can sit flush in the bottom left corner without jumping. */
@@ -427,8 +544,38 @@
     ctx.clearRect(0, 0, w, h);
     ctx.lineCap = "round"; ctx.lineJoin = "round";
     var scale = clamp(w / 260, 0.8, 1.6);
+    /* solid faces first, farthest first (painter's order), ground layers before the rest */
+    var faces = items.filter(function (it) { return it.kind === "face"; });
+    if (faces.length) {
+      var az = f.az, ca = Math.cos(az), sa = Math.sin(az), ce = Math.cos(v.el), se = Math.sin(v.el);
+      faces.forEach(function (it) {
+        var cx = 0, cy = 0, cz = 0, n = it.pts.length;
+        it.pts.forEach(function (p) { cx += p[0]; cy += p[1]; cz += p[2]; });
+        cx /= n; cy /= n; cz /= n;
+        it._d = (cx * sa + cy * ca) * ce - cz * se + (it.layer || 0) * 100;
+        // light from the upper left of the screen: tops lightest, faces turned right darkest
+        if (it.nrm) { var sx = it.nrm[0] * ca - it.nrm[1] * sa; it._shade = it.nrm[2] > 0.5 ? 0 : sx < 0 ? 0.08 : 0.17; }
+      });
+      faces.sort(function (a, b) { return b._d - a._d; });
+      for (var fi = 0; fi < faces.length; fi++) {
+        var fc = faces[fi], fink = fc.c === "accent" ? sty.accent : sty.ink;
+        ctx.beginPath(); var f0 = pr(fc.pts[0]); ctx.moveTo(f0[0], f0[1]);
+        for (var fk = 1; fk < fc.pts.length; fk++) { var fp = pr(fc.pts[fk]); ctx.lineTo(fp[0], fp[1]); }
+        ctx.closePath();
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = fc.fill === "accent" ? this.accent : this.paper; ctx.fill();
+        var sh = fc.fill === "accent" ? 0 : (fc.shade !== undefined ? fc.shade : fc._shade || 0);
+        if (sh) { ctx.globalAlpha = sh; ctx.fillStyle = this.ink; ctx.fill(); }
+        if (fc.fa !== undefined && fc.fill === "accent") { /* translucent accent fill */ }
+        if (fc.stroke !== false) {
+          ctx.globalAlpha = (fc.a === undefined ? 0.92 : fc.a) * fink.opacity;
+          ctx.setLineDash([]); ctx.strokeStyle = fc.c === "accent" ? this.accent : this.ink; ctx.lineWidth = (fc.w || 1) * scale * fink.weight; ctx.stroke();
+        }
+      }
+    }
     for (var i = 0; i < items.length; i++) {
       var it = items[i], col = it.c === "accent" ? this.accent : this.ink;
+      if (it.kind === "face") continue;
       var ink = it.c === "accent" ? sty.accent : sty.ink;
       ctx.globalAlpha = (it.a === undefined ? 0.92 : it.a) * ink.opacity;
       if (!ctx.globalAlpha) continue;
