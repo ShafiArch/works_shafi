@@ -2,7 +2,7 @@
    Workflow Collection cards. Black ink, one orange live element, a slow orbit.
    A project picks its drawing with "art" in the shelf part of project.json:
      lego, flyover, healing, homestead, interior, graph  (made for these projects)
-     web, repo, tower, plan                              (general, for new entries)
+     web, repo, tower, plan, fabrication, simulation     (general, for new entries)
    Add a new drawing by adding an entry to ART below. */
 (function () {
   "use strict";
@@ -309,6 +309,46 @@
       route.forEach(function (p) { pts.push([p[0], p[1], 0]); });
       out.push(L(pts, { c: "accent", w: 1.2, dash: [0.05, 0.04], dashOff: -t * 0.08 }));
       out.push(L([[-1.1, -1.1, 0], [1.1, -1.1, 0], [1.1, 1.1, 0], [-1.1, 1.1, 0]], { closed: true, a: 0.2 }));
+      return out;
+    }
+  };
+
+  /* Fabrication: a parametric screen of panels whose openings breathe, one panel live */
+  ART.fabrication = {
+    view: { el: 0.28, spin: 0.08, zoom: 0.36, yc: 0.8 },
+    step: function (t) {
+      var out = [], cols = 5, rows = 6, W = 1.5, H = 1.8, cw = W / cols, ch = H / rows;
+      var live = Math.floor(t / 1.6) % (cols * rows);
+      out.push(L([[-W / 2, 0, 0], [W / 2, 0, 0], [W / 2, 0, H], [-W / 2, 0, H]], { closed: true, w: 1.2 }));
+      for (var i = 0; i < cols; i++) for (var j = 0; j < rows; j++) {
+        var cx = -W / 2 + (i + 0.5) * cw, cz = (j + 0.5) * ch;
+        var open = 0.25 + 0.6 * (0.5 + 0.5 * Math.sin(t * 0.7 + i * 0.9 - j * 0.6));
+        var rx = cw * 0.42 * open, rz = ch * 0.42 * open, k = i * rows + j;
+        out.push(L([[cx - cw / 2, 0, cz - ch / 2], [cx + cw / 2, 0, cz - ch / 2], [cx + cw / 2, 0, cz + ch / 2], [cx - cw / 2, 0, cz + ch / 2]], { closed: true, a: 0.25 }));
+        out.push(L([[cx, 0, cz - rz], [cx + rx, 0, cz], [cx, 0, cz + rz], [cx - rx, 0, cz]], k === live ? { closed: true, c: "accent", w: 1.4 } : { closed: true, a: 0.8 }));
+      }
+      out.push(L([[-W * 0.7, -0.5, 0], [W * 0.7, -0.5, 0], [W * 0.7, 0.5, 0], [-W * 0.7, 0.5, 0]], { closed: true, a: 0.15 }));
+      return out;
+    }
+  };
+
+  /* Simulation: a room with openings, airflow lines streaming through it */
+  ART.simulation = {
+    view: { el: 0.45, spin: 0.07, zoom: 0.38, yc: 0.7 },
+    step: function (t) {
+      var out = [], a = 0.9, b = 0.6, h = 0.7;
+      out.push.apply(out, box([0, 0, 0], [a * 2, b * 2, h], { a: 0.75 }));
+      out.push(L([[-a, -0.25, 0.2], [-a, 0.25, 0.2], [-a, 0.25, 0.5], [-a, -0.25, 0.5]], { closed: true, w: 1.2 }));
+      out.push(L([[a, -0.1, 0.25], [a, 0.4, 0.25], [a, 0.4, 0.55], [a, -0.1, 0.55]], { closed: true, w: 1.2 }));
+      for (var g = -3; g <= 3; g++) out.push(L([[g * a / 3.5, -b, 0.001], [g * a / 3.5, b, 0.001]], { a: 0.15 }));
+      for (var s = 0; s < 7; s++) {
+        var y0 = -0.22 + s * 0.07, z0 = 0.24 + (s % 3) * 0.1, pts = [];
+        for (var k = 0; k <= 24; k++) {
+          var f = k / 24, x = lerp(-a - 0.5, a + 0.5, f);
+          pts.push([x, y0 + 0.12 * f + 0.05 * Math.sin(f * 7 + s), z0 + 0.06 * Math.sin(f * 5 + s * 0.8)]);
+        }
+        out.push(L(pts, { c: s === 3 ? "accent" : undefined, w: s === 3 ? 1.3 : 0.9, a: s === 3 ? 0.95 : 0.5, dash: [0.12, 0.06], dashOff: -t * 0.25 - s * 0.05 }));
+      }
       return out;
     }
   };

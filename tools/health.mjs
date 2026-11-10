@@ -2,8 +2,8 @@
 /* Site health check. Runs on GitHub (.github/workflows/health.yml) after every
    commit and every Monday; also runs locally:  node tools/health.mjs [--offline]
 
-   Errors (the site is or will be broken): unreadable JSON, works or shelf
-   entries pointing at nothing, missing images, unknown block types or cover
+   Errors (the site is or will be broken): unreadable JSON, works, shelf or
+   contents card entries pointing at nothing, missing images, unknown block types or cover
    drawings, pages loading different script versions, repository near its size limit.
    Warnings (worth fixing): dead external links, heavy images, long dashes.
 
@@ -73,6 +73,19 @@ if (site) {
     const hidden = (works || []).filter((e) => e && e.hidden).map((e) => e.project || e.id);
     site.carousel.filter((id) => hidden.includes(id)).forEach((id) => warnings.push(`\`${id}\` is on the shelf but hidden, so it does not show.`));
   }
+  if (site.front && site.front !== "shelf" && site.front !== "contents") errors.push(`\`front\` in \`content/site.json\` is \`${site.front}\`; use \`shelf\` or \`contents\`.`);
+  const cards = (site.contents && site.contents.cards) || [];
+  if (site.front === "contents" && !cards.length) errors.push("The front page is set to contents, but there are no cards. Add them in the site manager, Front page.");
+  const cardIds = new Set();
+  cards.forEach((c, i) => {
+    const where = `contents card ${i + 1} (\`${c.title || c.id}\`)`;
+    if (!c.id) errors.push(`${where} has no id.`);
+    else if (cardIds.has(c.id)) errors.push(`Two contents cards share the id \`${c.id}\`.`);
+    cardIds.add(c.id);
+    if (c.art && !ART.has(c.art)) errors.push(`${where} asks for the drawing \`${c.art}\`, which does not exist.`);
+    (c.works || []).forEach((id) => { if (!ids.has(id)) errors.push(`${where} opens \`${id}\`, which is not in the works list.`); });
+    if (c.url) { if (!isURL(c.url)) errors.push(`${where} has a web address that does not start with https://.`); else links.push([c.url, where]); }
+  });
   (site.nav || []).forEach((n, i) => {
     if (!n.label || !n.href) errors.push(`Top bar link ${i + 1} needs both a label and an address.`);
     else if (isURL(n.href)) links.push([n.href, `the top bar link \`${n.label}\``]);

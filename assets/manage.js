@@ -13,7 +13,8 @@
     lego: "Modules on water (Lego City)", flyover: "Deck on piers (Space Under Flyover)",
     healing: "Planted frame (Natural Healing)", homestead: "Round huts (Sundar Bari)",
     interior: "Double height room (IDA Interior)", graph: "Node graph (Grasshopper)",
-    web: "Browser window", repo: "Branch and files", tower: "Rising floor plates", plan: "Site plan with route"
+    web: "Browser window", repo: "Branch and files", tower: "Rising floor plates", plan: "Site plan with route",
+    fabrication: "Parametric screen (Fabrication)", simulation: "Airflow through a room (Simulation)"
   };
   var TYPES = {
     project: { label: "Project", hint: "A folder in this repository with its own project page: images, text, video." },
@@ -81,7 +82,7 @@
   }
 
   /* ---------- output files ---------- */
-  var SITE_ORDER = ["name", "repo", "tagline", "shelfTitle", "autoplaySeconds", "showIndex", "nav", "works", "carousel", "about", "footer"];
+  var SITE_ORDER = ["name", "repo", "tagline", "shelfTitle", "front", "autoplaySeconds", "showIndex", "nav", "works", "carousel", "contents", "about", "footer"];
   function siteOut() {
     var src = st.site, out = {};
     SITE_ORDER.forEach(function (k) { if (src[k] !== undefined) out[k] = src[k]; });
@@ -244,7 +245,7 @@
   function render() {
     $$("[data-tab]").forEach(function (b) { b.setAttribute("aria-current", b.dataset.tab === st.tab ? "page" : "false"); });
     var main = $("[data-main]");
-    ({ works: renderWorks, shelf: renderShelf, topbar: renderTopbar, settings: renderSettings, download: renderDownload })[st.tab](main);
+    ({ works: renderWorks, front: renderFront, shelf: renderShelf, topbar: renderTopbar, settings: renderSettings, download: renderDownload })[st.tab](main);
     status();
   }
   document.addEventListener("click", function (e) {
@@ -382,6 +383,84 @@
     $$("[data-del]", main).forEach(function (b) { b.onclick = function () { nav.splice(+b.dataset.del, 1); saveDraft(); render(); }; });
     var list = $("[data-list]", main);
     if (list) sortable(list, nav, function () { saveDraft(); render(); });
+  }
+
+  /* Front page: one click between the bookshelf and the contents cards, and the cards themselves */
+  function renderFront(main) {
+    var s = st.site, mode = s.front === "contents" ? "contents" : "shelf";
+    var conf = s.contents = s.contents || { title: "Contents", cards: [] };
+    if (!Array.isArray(conf.cards)) conf.cards = [];
+    var cards = conf.cards, works = s.works;
+    var arts = Object.keys(ART_LABELS).filter(function (k) { return window.Covers && window.Covers.has(k); }).map(function (k) { return [k, ART_LABELS[k]]; });
+    function choice(v, title, text) {
+      return '<button type="button" class="m-front-opt' + (mode === v ? " is-on" : "") + '" data-front="' + v + '" aria-pressed="' + (mode === v) + '">' +
+        '<span class="m-front-pic m-front-' + v + '" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><strong>' + title + "</strong><span>" + text + "</span></button>";
+    }
+    main.innerHTML =
+      '<div class="m-head"><div><h1>Front page</h1><p class="m-muted">Pick the layout of the home page. Both keep their settings, so you can switch back at any time. Publish to make the change live.</p></div>' +
+      '<div class="m-head-btns"><a class="m-btn" href="index.html?front=' + mode + '" target="_blank" rel="noopener">Preview the published site</a></div></div>' +
+      '<div class="m-front-opts">' + choice("shelf", "Bookshelf", "Books turning on a shelf. Order in Shelf order.") + choice("contents", "Contents cards", "Numbered cards with a drawing, like a contents page.") + "</div>" +
+      '<h2 class="m-h2">Contents cards</h2>' +
+      '<div class="m-form m-grid2">' + field("Heading", input("ct-title", conf.title, 'data-ct-title placeholder="Contents"'), "Top right, above the cards.") + "</div>" +
+      (cards.length ? '<ol class="m-rows" data-list>' + cards.map(function (c, i) {
+        var picked = c.works || [];
+        return '<li class="m-row m-ct-row" data-row="' + i + '"><span class="m-grip" aria-hidden="true">&#8942;&#8942;</span><span class="m-n">' + (i + 1) + ".</span>" +
+          '<div class="m-ct-body">' +
+          '<div class="m-ct-line">' + field("Title", input("ct-t" + i, c.title, 'data-ct="' + i + '" data-k="title"'), "", "m-grow-2") +
+          field("Drawing", select("ct-a" + i, arts, c.art, 'data-ct="' + i + '" data-k="art"'), "", "m-grow-1") + "</div>" +
+          field("Lines under the title (one per line, up to three)", area("ct-l" + i, (c.lines || []).join("\n"), 3, 'data-ct="' + i + '" data-k="lines"'), "Empty with nothing to open shows In preparation.") +
+          '<div class="m-field"><span class="m-label">Opens</span><div class="m-chips">' + works.map(function (e) {
+            var id = entryId(e), on = picked.indexOf(id) >= 0;
+            return '<label class="m-chip' + (on ? " is-on" : "") + '"><input type="checkbox" data-ct-work="' + i + '" value="' + attr(id) + '"' + (on ? " checked" : "") + "><span>" + esc(info(e).title || id) + "</span></label>";
+          }).join("") + '</div><span class="m-hint">One work opens it directly; several open a page of their own cards.</span></div>' +
+          field("Or a web address", input("ct-u" + i, c.url, 'data-ct="' + i + '" data-k="url" placeholder="https://"'), "Used instead of the works when filled.") +
+          "</div>" +
+          '<span class="m-row-btns"><button type="button" class="m-icon" data-up="' + i + '" aria-label="Move up">&#8593;</button>' +
+          '<button type="button" class="m-icon" data-down="' + i + '" aria-label="Move down">&#8595;</button>' +
+          '<button type="button" class="m-btn m-small m-ghost-bad" data-del="' + i + '">Remove</button></span></li>';
+      }).join("") + "</ol>" : '<p class="m-empty">No cards yet.</p>') +
+      '<p><button type="button" class="m-btn m-primary" data-addcard>Add a card</button></p>';
+
+    $$("[data-front]", main).forEach(function (b) { b.onclick = function () { s.front = b.dataset.front; saveDraft(); render(); toast(b.dataset.front === "contents" ? "Front page: contents cards" : "Front page: bookshelf"); }; });
+    $("[data-ct-title]", main).oninput = function () { conf.title = this.value; saveDraft(); };
+    $$("[data-ct]", main).forEach(function (inp) {
+      inp.oninput = inp.onchange = function () {
+        var c = cards[+inp.dataset.ct], k = inp.dataset.k;
+        if (k === "lines") c.lines = inp.value.split("\n").map(function (l) { return l.trim(); }).filter(Boolean).slice(0, 3);
+        else if (k === "url") { if (inp.value.trim() && inp.value.trim() !== "https://") c.url = inp.value.trim(); else delete c.url; }
+        else c[k] = inp.value;
+        if (k === "title" && /^card-\d+$/.test(c.id || "") && inp.value.trim()) c.id = uniqueCardId(slugify(inp.value), c);
+        saveDraft();
+      };
+    });
+    $$("[data-ct-work]", main).forEach(function (cb) {
+      cb.onchange = function () {
+        var c = cards[+cb.dataset.ctWork], list = c.works = c.works || [];
+        var at = list.indexOf(cb.value);
+        if (cb.checked && at < 0) list.push(cb.value); else if (!cb.checked && at >= 0) list.splice(at, 1);
+        cb.parentNode.classList.toggle("is-on", cb.checked); saveDraft();
+      };
+    });
+    $("[data-addcard]", main).onclick = function () {
+      var n = 1; while (cards.some(function (c) { return c.id === "card-" + n; })) n++;
+      cards.push({ id: "card-" + n, title: "", art: "web", lines: [], works: [] }); saveDraft(); render();
+      var t = $$('[data-k="title"]', main); if (t.length) t[t.length - 1].focus();
+    };
+    $$("[data-up]", main).forEach(function (b) { b.onclick = function () { if (moveIn(cards, +b.dataset.up, -1)) { saveDraft(); render(); } }; });
+    $$("[data-down]", main).forEach(function (b) { b.onclick = function () { if (moveIn(cards, +b.dataset.down, 1)) { saveDraft(); render(); } }; });
+    $$("[data-del]", main).forEach(function (b) {
+      b.onclick = function () {
+        if (b.dataset.sure !== "1") { b.dataset.sure = "1"; b.textContent = "Sure? Remove"; setTimeout(function () { if (b.isConnected) { b.dataset.sure = ""; b.textContent = "Remove"; } }, 3000); return; }
+        cards.splice(+b.dataset.del, 1); saveDraft(); render();
+      };
+    });
+    var list = $("[data-list]", main);
+    if (list) sortable(list, cards, function () { saveDraft(); render(); });
+  }
+  function uniqueCardId(base, self) {
+    var cards = st.site.contents.cards, id = base || "card", n = 1;
+    while (cards.some(function (c) { return c !== self && c.id === id; })) id = base + "-" + (++n);
+    return id;
   }
 
   function navWarn(h) {
