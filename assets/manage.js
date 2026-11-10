@@ -14,7 +14,8 @@
     healing: "Planted frame (Natural Healing)", homestead: "Round huts (Sundar Bari)",
     interior: "Double height room (IDA Interior)", graph: "Node graph (Grasshopper)",
     web: "Browser window", repo: "Branch and files", tower: "Rising floor plates", plan: "Site plan with route",
-    fabrication: "Parametric screen (Fabrication)", simulation: "Airflow through a room (Simulation)"
+    target2plan: "Rooms and zone graph (Target2Plan)", kybele: "Greenhouse with vines (Kybele)",
+    fabrication: "Triangulated screen (Fabrication)", simulation: "Mud wall dwelling with airflow (Simulation)"
   };
   var TYPES = {
     project: { label: "Project", hint: "A folder in this repository with its own project page: images, text, video." },

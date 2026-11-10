@@ -68,23 +68,37 @@
       {
         "id": "target2plan",
         "title": "Target2Plan",
-        "art": "plan",
-        "lines": [],
-        "works": []
+        "art": "target2plan",
+        "lines": [
+          "Website",
+          "Program to schematic plans",
+          "Runs in the browser"
+        ],
+        "works": [],
+        "url": "https://shafiarch.github.io/Target2Plan/"
       },
       {
         "id": "kybele",
         "title": "Kybele",
-        "art": "tower",
-        "lines": [],
-        "works": []
+        "art": "kybele",
+        "lines": [
+          "Grasshopper plugin",
+          "Greenhouse lighting simulation",
+          "Free on food4Rhino"
+        ],
+        "works": [],
+        "url": "https://www.food4rhino.com/en/app/kybele-greenhouse-simulation"
       },
       {
         "id": "fabrication",
         "title": "Fabrication",
         "art": "fabrication",
-        "lines": [],
-        "works": []
+        "lines": [
+          "Sentience",
+          "Parametric Screening"
+        ],
+        "works": [],
+        "url": "https://shafiarch.github.io/works_flipbook/#p=42"
       },
       {
         "id": "grasshopper-workflows",
@@ -103,8 +117,12 @@
         "id": "simulation-workflows",
         "title": "Simulation Workflows",
         "art": "simulation",
-        "lines": [],
-        "works": []
+        "lines": [
+          "Handloom Workers dwelling",
+          "Airflow, daylight, energy"
+        ],
+        "works": [],
+        "url": "https://shafiarch.github.io/works_flipbook/#p=15"
       },
       {
         "id": "undergraduate",
