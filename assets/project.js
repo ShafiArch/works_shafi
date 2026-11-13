@@ -133,6 +133,15 @@
     }).join("");
   }
 
+  /* buttons under the title: "actions": [{ "label": "Open the web app", "url": "https://..." }], the first one filled */
+  function actionsHTML(list) {
+    list = (list || []).filter(function (a) { return a && a.label && a.url; });
+    if (!list.length) return "";
+    return '<p class="p-actions">' + list.map(function (a, i) {
+      return '<a class="p-action' + (i ? "" : " is-main") + '" href="' + esc(a.url) + '"' + S.linkAttrs(a.url) + ">" + esc(a.label) + ' <span aria-hidden="true">&#8599;</span></a>';
+    }).join("") + "</p>";
+  }
+
   function render(site, p, base, items, pos) {
     document.title = p.title + " · " + site.name;
     var meta = (p.meta || []).filter(function (m) { return m && m[1]; });
@@ -141,10 +150,11 @@
 
     var html =
       '<header class="p-head' + (pl.header === "center" ? " is-center" : "") + '" data-block="header">' +
-      '<a class="p-back" href="index.html"><span aria-hidden="true">&#8592;</span> Shelf</a>' +
+      '<a class="p-back" href="index.html"><span aria-hidden="true">&#8592;</span> ' + (site.front === "contents" ? "Contents" : "Shelf") + "</a>" +
       (kicker ? '<div class="p-kicker">' + kicker + "</div>" : "") +
       '<h1 class="p-title">' + esc(p.title) + "</h1>" +
       (p.subtitle ? '<p class="p-sub">' + esc(p.subtitle) + "</p>" : "") +
+      actionsHTML(p.actions) +
       "</header>" +
       '<div class="p-lede' + (pl.facts === "below" ? " facts-below" : "") + (pl.intro && pl.intro !== "normal" ? " intro-" + pl.intro : "") + (/^(center|right|justify)$/.test(pl.introAlign || "") ? " align-" + pl.introAlign : "") + '" data-block="intro">' +
       '<div class="prose p-intro">' + S.md(p.intro) + "</div>" +
@@ -195,7 +205,7 @@
     document.body.classList.add("is-embed");
     main.innerHTML =
       '<header class="p-head p-head-embed">' +
-      '<a class="p-back" href="index.html"><span aria-hidden="true">&#8592;</span> Shelf</a>' +
+      '<a class="p-back" href="index.html"><span aria-hidden="true">&#8592;</span> ' + (site.front === "contents" ? "Contents" : "Shelf") + "</a>" +
       '<h1 class="p-title p-title-sm">' + esc(it.title) + "</h1>" +
       '<a class="p-out" href="' + esc(it.url) + '" target="_blank" rel="noopener">Open in a new tab <span aria-hidden="true">&#8599;</span></a></header>' +
       '<iframe class="embed-full" src="' + esc(it.url) + '" title="' + esc(it.title) + '"></iframe>';

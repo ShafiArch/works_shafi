@@ -761,6 +761,7 @@
       crop: { src: "", fx: 0.5, fy: 0.5, zoom: 1, dirty: false },
       meta: t === "project" && it.meta ? clone(it.meta) : [["Type", ""], ["Site", ""]],
       intro: t === "project" ? (Array.isArray(it.intro) ? it.intro.join("\n\n") : it.intro || "") : "",
+      actions: t === "project" ? ((st.projects[e && e.project] || {}).actions || []).map(function (a) { return a.label + " | " + a.url; }).join("\n") : "",
       blocks: t === "project" && it.blocks ? clone(it.blocks) : [],
       autoBlocks: true, maxEdge: 4000
     };
@@ -815,6 +816,7 @@
       field("Description", area("subtitle", F.subtitle, 2), "One line under the title; also the small text on the cover.", "m-span2") +
       field("Category", input("category", F.category, 'list="m-cats"') + '<datalist id="m-cats">' + CATEGORIES.map(function (c) { return '<option value="' + c + '">'; }).join("") + "</datalist>") +
       field("Year", input("year", F.year, 'inputmode="numeric" placeholder="2026"')) +
+      (t === "project" ? field("Buttons under the title", area("actions", F.actions, 2, 'placeholder="Open the web app | https://..."'), "One per line: label, a bar, then the address. The first button is filled.", "m-span2") : "") +
       "</div></section>" +
 
       // placement
@@ -1164,9 +1166,11 @@
       p.shelf = Object.assign({}, keep, shelf);
       p.meta = F.meta.filter(function (m) { return (m[0] || "").trim() && (m[1] || "").trim(); }).map(function (m) { return [m[0].trim(), m[1].trim()]; });
       p.intro = F.intro.trim();
+      p.actions = String(F.actions || "").split("\n").map(function (l) { var m = l.split("|"); return { label: (m[0] || "").trim(), url: m.slice(1).join("|").trim() }; }).filter(function (a) { return a.label && /^https?:\/\//.test(a.url); });
+      if (!p.actions.length) delete p.actions;
       p.blocks = F.blocks.map(function (b) { return clean(clone(b)); }).filter(function (b) { return b.type; });
       var ordered = {};
-      ["title", "subtitle", "year", "category", "shelf", "meta", "intro", "blocks"].forEach(function (k) { if (p[k] !== undefined) ordered[k] = p[k]; });
+      ["title", "subtitle", "year", "category", "actions", "shelf", "meta", "intro", "blocks"].forEach(function (k) { if (p[k] !== undefined) ordered[k] = p[k]; });
       Object.keys(p).forEach(function (k) { if (ordered[k] === undefined) ordered[k] = p[k]; });
       ["subtitle", "year", "category", "intro"].forEach(function (k) { if (ordered[k] === "") delete ordered[k]; });
       clean(ordered.shelf);

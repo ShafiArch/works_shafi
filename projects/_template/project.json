@@ -3,6 +3,9 @@
   "subtitle": "One line that says what the project is",
   "year": "2026",
   "category": "Competition",
+  "actions": [
+    { "label": "Open the web app", "url": "https://example.com" }
+  ],
   "shelf": {
     "cover": "cover.webp",
     "tone": "auto",

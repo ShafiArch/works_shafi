@@ -22,6 +22,9 @@
   ],
   "works": [
     {
+      "project": "target2plan"
+    },
+    {
       "project": "lego-city"
     },
     {
@@ -70,12 +73,13 @@
         "title": "Target2Plan",
         "art": "target2plan",
         "lines": [
-          "Website",
+          "MS thesis, 2026",
           "Program to schematic plans",
-          "Runs in the browser"
+          "Web app in the browser"
         ],
-        "works": [],
-        "url": "https://shafiarch.github.io/Target2Plan/"
+        "works": [
+          "target2plan"
+        ]
       },
       {
         "id": "kybele",

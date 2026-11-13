@@ -1,0 +1,150 @@
+{
+  "title": "Target2Plan",
+  "subtitle": "From a room program and two performance targets to schematic floor plans",
+  "year": "2026",
+  "category": "Thesis",
+  "actions": [
+    {
+      "label": "Open the web app",
+      "url": "https://shafiarch.github.io/Target2Plan/"
+    },
+    {
+      "label": "Source on GitHub",
+      "url": "https://github.com/ShafiArch/Target2Plan"
+    }
+  ],
+  "shelf": {
+    "art": "target2plan",
+    "tone": "auto",
+    "spine": "Target2Plan",
+    "coverText": "From a room program and two targets to schematic floor plans"
+  },
+  "meta": [
+    [
+      "Type",
+      "MS thesis, Design Technology"
+    ],
+    [
+      "School",
+      "Department of Architecture, University of Washington"
+    ],
+    [
+      "Supervisor",
+      "Tomás Méndez Echenagucia"
+    ],
+    [
+      "Committee",
+      "Mohammad Tabatabaei Manesh"
+    ],
+    [
+      "Targets",
+      "QVCI (Quality View Coverage Index) and AQI (Acoustic Quality Index)"
+    ],
+    [
+      "Runs as",
+      "Web app in the browser; desktop app in Python"
+    ]
+  ],
+  "intro": "Target2Plan goes from a room program and two plan level targets, view quality (QVCI) and acoustic quality (AQI), to zone assignments, connectivity graphs and schematic floor plans. Two trained models are at its core, a cGAT-AR zone model and a connectivity model; a third, the area distribution model, is optional, since the room program can also be drawn by hand.\n\nThe web app runs entirely in the browser. The trained models are exported to static files and evaluated in a Web Worker, so there is no server, no install, and nothing leaves the machine.",
+  "blocks": [
+    {
+      "type": "image",
+      "src": "plans.gif",
+      "width": "full",
+      "alt": "Schematic synthesis of four apartments, from one to four bedrooms, drawn at one scale",
+      "caption": "Four apartments generated for QVCI 0.70 and AQI 0.60, drawn at one scale: from the rooms at their connectivity positions to walls, doors, windows and furniture. Q and A are the QVCI and AQI each plan reaches."
+    },
+    {
+      "type": "text",
+      "heading": "Five stages",
+      "body": "1. **Inputs**: the targets with their reachable range, site conditions per facade, planned window to wall ratio, zone capacity and generation parameters.\n2. **Area distribution**: the room program drawn on a grid, or sampled from the area distribution model.\n3. **Zone assignments**: the zone model is decoded 81 times (once greedily, 80 times by sampling) and the 12 arrangements closest to the targets are shown, with a design explorer in parallel coordinates.\n4. **Connectivity**: access graphs from the connectivity model, with secondary rooms moved next to the room they connect to.\n5. **Schematic design**: packed plans with walls, doors, windows and furniture, a replayable synthesis, room details and the Pareto front."
+    },
+    {
+      "type": "text",
+      "heading": "Gallery",
+      "body": "Four conventional apartment programs for the default site (north: vegetation view, 55 dB; south: urban view, 70 dB; east: no view, 65 dB; west: sky view, 60 dB) and the default targets. Left, the schematic synthesis: the rooms start at their connectivity positions, pack together and get walls, doors, windows and furniture. Right, the connectivity graph of the same plan: the predicted edges appear one by one, then the secondary rooms move next to the room they connect to."
+    },
+    {
+      "type": "gallery",
+      "columns": 2,
+      "items": [
+        {
+          "src": "1-bedroom_plan.gif",
+          "caption": "1 bedroom: living room, kitchen, bathroom, balcony; 51 m²; QVCI 0.70, AQI 0.60"
+        },
+        {
+          "src": "1-bedroom_graph.gif",
+          "caption": "Connectivity graph"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "columns": 2,
+      "items": [
+        {
+          "src": "2-bedroom_plan.gif",
+          "caption": "2 bedrooms: living room, kitchen, bathroom, balcony; 67 m²; QVCI 0.69, AQI 0.60"
+        },
+        {
+          "src": "2-bedroom_graph.gif",
+          "caption": "Connectivity graph"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "columns": 2,
+      "items": [
+        {
+          "src": "3-bedroom_plan.gif",
+          "caption": "3 bedrooms: living room, kitchen, 2 bathrooms, balcony; 86 m²; QVCI 0.70, AQI 0.59"
+        },
+        {
+          "src": "3-bedroom_graph.gif",
+          "caption": "Connectivity graph"
+        }
+      ]
+    },
+    {
+      "type": "gallery",
+      "columns": 2,
+      "items": [
+        {
+          "src": "4-bedroom_plan.gif",
+          "caption": "4 bedrooms: living room, kitchen, 2 bathrooms, 2 balconies; 109 m²; QVCI 0.70, AQI 0.60"
+        },
+        {
+          "src": "4-bedroom_graph.gif",
+          "caption": "Connectivity graph"
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "src": "plans_grid.gif",
+      "width": "full",
+      "alt": "Thirty-two schematic plans of one to four bedroom apartments and eight connectivity graphs",
+      "caption": "Thirty-two schematic plans of one to four bedroom apartments and eight connectivity graphs."
+    },
+    {
+      "type": "text",
+      "heading": "Credits",
+      "body": "The furniture placement in the schematic synthesis is a port of the furniture placement logic in **RGeoLib**, the research geometry library of the Hypergraph project by Ramon Elias Weber ([github.com/ramonweber/hypergraph](https://github.com/ramonweber/hypergraph), MIT License). Weber, R. E., Mueller, C. and Reinhart, C. A hypergraph model shows the carbon reduction potential of effective space use in housing. *Nature Communications* 15, 8327 (2024).\n\nTarget2Plan is licensed under CC BY-NC 4.0."
+    },
+    {
+      "type": "links",
+      "heading": "Target2Plan",
+      "items": [
+        {
+          "label": "Open the web app",
+          "url": "https://shafiarch.github.io/Target2Plan/"
+        },
+        {
+          "label": "Source code and documentation",
+          "url": "https://github.com/ShafiArch/Target2Plan"
+        }
+      ]
+    }
+  ]
+}
