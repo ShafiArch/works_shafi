@@ -34,6 +34,23 @@
       "project": "natural-healing"
     },
     {
+      "title": "Fabrication Works",
+      "subtitle": "Sentience, Parametric Screening and the Sketchbook Corner Piece",
+      "category": "Website",
+      "url": "https://shafiarch.github.io/works_fabrications/",
+      "open": "tab",
+      "shelf": {
+        "art": "fabrication",
+        "tone": "light",
+        "spine": "Fabrication Works",
+        "cover": "",
+        "coverText": "Fabrication Works",
+        "coverNote": "Arduino, CNC, laser cutting, 3D printing"
+      },
+      "id": "fabrication-works",
+      "type": "website"
+    },
+    {
       "title": "Grasshopper Workflow Collection",
       "subtitle": "38 reusable Grasshopper definitions, open to download",
       "category": "Website",
@@ -98,11 +115,13 @@
         "title": "Fabrication",
         "art": "fabrication",
         "lines": [
-          "Sentience",
-          "Parametric Screening"
+          "Website",
+          "Sentience, Parametric Screening",
+          "Sketchbook Corner Piece"
         ],
-        "works": [],
-        "url": "https://shafiarch.github.io/works_flipbook/#p=42"
+        "works": [
+          "fabrication-works"
+        ]
       },
       {
         "id": "grasshopper-workflows",
