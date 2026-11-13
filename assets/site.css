@@ -446,3 +446,7 @@ a.ct-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px;
 .p-action.is-main { background: var(--ink); color: var(--bg); }
 .p-action:hover { background: var(--accent); border-color: var(--accent); color: #fff; }
 .p-action:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* image and gallery blocks with "blend": true: white in the image takes the page colour, no frame.
+   Light themes multiply; dark themes keep the image as it is (white would turn black otherwise). */
+.is-blend img, .blk-image.is-blend img { background: none; mix-blend-mode: var(--img-blend, multiply); }
