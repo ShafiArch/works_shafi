@@ -52,7 +52,8 @@
       "src": "plans.gif",
       "width": "full",
       "alt": "Schematic synthesis of four apartments, from one to four bedrooms, drawn at one scale",
-      "caption": "Four apartments generated for QVCI 0.70 and AQI 0.60, drawn at one scale: from the rooms at their connectivity positions to walls, doors, windows and furniture. Q and A are the QVCI and AQI each plan reaches."
+      "caption": "Four apartments generated for QVCI 0.70 and AQI 0.60, drawn at one scale: from the rooms at their connectivity positions to walls, doors, windows and furniture. Q and A are the QVCI and AQI each plan reaches.",
+      "blend": true
     },
     {
       "type": "text",
@@ -76,7 +77,8 @@
           "src": "1-bedroom_graph.gif",
           "caption": "Connectivity graph"
         }
-      ]
+      ],
+      "blend": true
     },
     {
       "type": "gallery",
@@ -90,7 +92,8 @@
           "src": "2-bedroom_graph.gif",
           "caption": "Connectivity graph"
         }
-      ]
+      ],
+      "blend": true
     },
     {
       "type": "gallery",
@@ -104,7 +107,8 @@
           "src": "3-bedroom_graph.gif",
           "caption": "Connectivity graph"
         }
-      ]
+      ],
+      "blend": true
     },
     {
       "type": "gallery",
@@ -118,14 +122,16 @@
           "src": "4-bedroom_graph.gif",
           "caption": "Connectivity graph"
         }
-      ]
+      ],
+      "blend": true
     },
     {
       "type": "image",
       "src": "plans_grid.gif",
       "width": "full",
       "alt": "Thirty-two schematic plans of one to four bedroom apartments and eight connectivity graphs",
-      "caption": "Thirty-two schematic plans of one to four bedroom apartments and eight connectivity graphs."
+      "caption": "Thirty-two schematic plans of one to four bedroom apartments and eight connectivity graphs.",
+      "blend": true
     },
     {
       "type": "text",

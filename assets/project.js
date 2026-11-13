@@ -60,10 +60,11 @@
 
   /* Each block type. Add a new one here and it can be used in any project.json. */
   var BLOCKS = {
-    image: function (b, base) { return figure(b, base, "blk-image", b.layout); },
+    /* "blend": true lets the page show through the white of an image (drawings, diagrams on white) */
+    image: function (b, base) { return figure(b, base, "blk-image" + (b.blend ? " is-blend" : ""), b.layout); },
     gallery: function (b, base) {
       var cols = Math.max(1, Math.min(4, b.columns || 2));
-      return '<div class="blk-gallery w-' + esc(b.width || "full") + '" style="--cols:' + cols + '">' +
+      return '<div class="blk-gallery w-' + esc(b.width || "full") + (b.blend ? " is-blend" : "") + '" style="--cols:' + cols + '">' +
         (b.items || []).map(function (it) { return figure(typeof it === "string" ? { src: it } : it, base, "", b.layout); }).join("") + "</div>" +
         (b.caption ? '<p class="blk-caption">' + S.inline(b.caption) + "</p>" : "");
     },
