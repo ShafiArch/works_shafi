@@ -67,6 +67,7 @@ Open **https://shafiarch.github.io/works_shafi/manage.html**. It reads the publi
   * *Repository*: a GitHub address; *Fill details from GitHub* reads the name, description and year.
   * *Project from another site*: the address of a folder with a project.json on another GitHub Pages site.
   * Every type has the book settings: spine text, spine colour, cover (line drawing, image with crop, or title only), cover title and cover description, with a live preview.
+* **Buttons under a project title:** in a project's editor, *Buttons under the title* takes one per line, `Label | https://address` (the first is filled). Target2Plan uses it for *Open the web app*.
 * **Front page:** one click between the two home page layouts, **Bookshelf** and **Contents cards** (numbered cards with a light grey block and a line drawing, on a faint grid). Both keep their settings. Below the switch you edit the cards: title, drawing, up to three lines under the title, and what the card opens: tick one work to open it directly, several to open a page of their own cards (`index.html?group=<card id>`), or fill a web address. A card with nothing to open and no lines shows *In preparation*. Publish to make a change live. To look at the other layout without changing anything, add `?front=shelf` or `?front=contents` to the address.
 * **Shelf order:** the books on the carousel, separate from the work list order. Take books off or put them back.
 * **Top bar:** add, remove and reorder links. Web addresses open in a new tab; *Add the Work list link* adds the link that opens the list.
