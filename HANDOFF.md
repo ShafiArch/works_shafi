@@ -27,7 +27,7 @@ Paste something like this into the new chat:
 
 **Access.** For a Claude session to push, the Claude GitHub App must be installed on the ShafiArch account with access to `works_shafi` (https://github.com/apps/claude/installations/select_target) and GitHub must be connected in claude.ai settings. Without it, Claude can read the public repo but pushes fail with 403; the fallback is to hand the owner a zip of changed files to upload (Add file, Upload files, commit). Repository settings (rename, Pages settings, About box) cannot be changed from a Claude session even with push access; the owner does those on GitHub.
 
-**Commits** in previous sessions used the identity `ShafiArch <ShafiArch@users.noreply.github.com>` and were pushed straight to `main` (the owner asked for direct deploys after the first pull request).
+**Commits** are authored and committed as `Shafiul Islam <145989139+ShafiArch@users.noreply.github.com>`, with no AI co-author, session or "generated with" lines, and pushed straight to `main` (the owner asked for direct deploys after the first pull request). In November 2026 the history of works_shafi, works_flipbook, works_fabrications and Grasshopper was rewritten so his account is the only contributor; file contents were unchanged.
 
 **Deploying.** Every push to `main` runs GitHub's "pages build and deployment" workflow (about 40 seconds). It has twice hung on the deploy step or sat queued for 10+ minutes. Fix: cancel the run, then push an empty commit (`git commit --allow-empty -m "Trigger Pages deploy"`). Check with `gh api repos/ShafiArch/works_shafi/actions/runs --jq '.workflow_runs[0] | "\(.head_sha[0:7]) \(.status) \(.conclusion)"'`.
 
